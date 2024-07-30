@@ -1177,7 +1177,7 @@ def analyze_predictions_cv(split_name,pred_split_variables = ['Experiment_ID','L
 				# 	if not np.isnan(val):
 				# 		keep = True
 				# if keep:
-				analyzed_path = path_to_preds+split_name+'/cv_'+str(i)+'/Results/'+pred_split_name+'/'+dtype
+				analyzed_path = path_to_preds+split_name+'/cv_'+str(i)+'/results/'+pred_split_name+'/'+dtype
 				path_if_none(analyzed_path)
 				# print(data_subset['Goal'])
 				# goal = data_subset['Goal'][0]

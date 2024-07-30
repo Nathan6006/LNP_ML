@@ -118,13 +118,13 @@ The columns for `all_amine_split.csv` are as follows:
 To perform a split, run the following command, ensuring to insert the appropriate values for items in {}:
 
 ```
-python main_script.py split_cv_split {split filename} ultra-held-out-fraction {either "-1" or “morgan”} {either nothing or “in_silico_screen_split”}
+python main_script.py split {split filename} ultra-held-out-fraction {either "-1" or “morgan”} {either nothing or “in_silico_screen_split”}
 ```
 
 For example,
 
 ```
-python main_script.py split all_amine_split.csv -1
+python main_script.py split all_amine_split_for_paper.csv -1
 ```
 
 This will generate a five-fold cross-validation split according to the split specified in the given split filename. The `ultra-held-out-fraction` is the fraction of data that you want held out of all of the cross-validation sets. This is useful for reporting error with predictions based on an ensemble average of all the cross-validation splits. If you do not want an ultra-held-out dataset, set it to `-1`. If you specify `morgan` then binary Morgan fingerprints (radius 2, 2048 bits) will be included. If you select `in_silico_screen_split`, then the train and validation sets will be the same, i.e. each model will be trained on 80% of the data with the remaining 20% used as a validation set and also to report (slightly biased) performance of the resulting model. This option should be selected for the actual model used to do in silico screening, since it trains on 80% instead of 60% of the data.
@@ -143,7 +143,7 @@ python main_script.py train {name of split folder on which to train}
 For example,
 
 ```
-python main_script.py train all_amine_split
+python main_script.py train all_amine_split_for_paper
 ```
 
 The number of epochs for training can also be specified with `--epochs {number of epochs}`
@@ -162,7 +162,7 @@ python main_script.py analyze {folder with trained model}
 For example,
 
 ```
-python main_script.py analyze all_amine_split
+python main_script.py analyze all_amine_split_for_paper
 ```
 
 This will create a folder in `results/crossval_splits` with the name of the folder containing the splits and trained model that contains analyzed results on the five test sets from cross-validation. The folder will have six sub-folders:
@@ -216,4 +216,4 @@ python main_script.py analyze small_test_split_with_ultra_held_out_for_in_silico
 python main_script.py predict small_test_split_with_ultra_held_out_for_in_silico_screen test_screen
 ```
 
-Running all code for training a model based on all data in this repository can take ~24+ hours, depending on your computer specifications. The smaller toy dataset discussed immediately above should take significantly less time at ~5 hours to run.
+Running all code for training a model based on all data in this repository can take ~3 hours with CUDA GPU or ~24+ hours with CPU only, depending on your computer specifications. The smaller toy dataset discussed immediately above should take significantly less time at ~10 minutes to run with CUDA GPU or ~3 hours with CPU only.
