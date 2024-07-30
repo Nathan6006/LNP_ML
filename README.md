@@ -79,7 +79,7 @@ To incorporate all the data into your new dataset, run the command:
 python main_script.py merge_datasets
 ```
 
-As a result, `all_data.csv` in the `/data` folder will now include your updated dataset. Note that `all_data.csv` already included in this repository features all the LNP data in this repository. For the subset of data analyzed in the paper, see `all_data_from_submission.csv`.
+As a result, `all_data.csv` in the `/data` folder will now include your updated dataset. Note that `all_data.csv` already included in this repository features all the LNP data in this repository. For the subset of data analyzed in the paper, see `all_data_for_paper.csv`.
 
 ### Generating train & test splits (optional)
 
