@@ -80,16 +80,16 @@ def make_predictions_from_model(preds_dir, base = True, morgan = True, rdkit = T
 	if is_in_vivo:
 		predictions_dir += 'in_vivo_'
 	if base:
-		predict_from_json(get_base_predict_args(), preds_path = predictions_dir+'Predictions/base_only.csv',
+		predict_multitask_from_json(get_base_predict_args(), preds_path = predictions_dir+'Predictions/base_only.csv',
 			checkpoint_dir = preds_dir + '/Base_model_only', test_data_path = test_data_path, is_transfer = is_transfer)
 	if morgan:
-		predict_from_json(get_base_predict_args(), preds_path = predictions_dir + 'Predictions/morgan_counts.csv',
+		predict_multitask_from_json(get_base_predict_args(), preds_path = predictions_dir + 'Predictions/morgan_counts.csv',
 			checkpoint_dir = preds_dir + '/Morgan_counts', test_data_path = test_data_path, is_transfer = is_transfer)
 	if rdkit:
-		predict_from_json(get_base_predict_args(), preds_path = predictions_dir + 'Predictions/rdkit_2d.csv',
+		predict_multitask_from_json(get_base_predict_args(), preds_path = predictions_dir + 'Predictions/rdkit_2d.csv',
 			checkpoint_dir = preds_dir + '/rdkit_2d', test_data_path = test_data_path, is_transfer = is_transfer)
 	if morgan_plus_rdkit:
-		predict_from_json(get_base_predict_args(), preds_path = predictions_dir + 'Predictions/morgan_plus_rdkit.csv',
+		predict_multitask_from_json(get_base_predict_args(), preds_path = predictions_dir + 'Predictions/morgan_plus_rdkit.csv',
 			checkpoint_dir = preds_dir + '/Morgan_plus_rdkit', test_data_path = test_data_path, is_transfer = is_transfer)
 
 
