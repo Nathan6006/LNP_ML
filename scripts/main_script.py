@@ -15,113 +15,6 @@ import sys
 import random
 import chemprop # type: ignore
 
-
-def main(argv):
-	# args = sys.argv[1:]
-	task_type = argv[1]
-	if task_type == 'train':
-		split_folder = argv[2]
-		epochs = 50
-		cv_num = 5
-		for i, arg in enumerate(argv):
-			if arg.replace('–', '-') == '--epochs':
-				epochs = argv[i+1]
-				print('this many epochs: ',str(epochs))
-
-		for cv in range(cv_num):
-			split_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
-			arguments = [
-				'--epochs',str(epochs),
-				'--save_dir',split_dir,
-				'--seed','42',
-				'--dataset_type','regression',
-				'--data_path',split_dir+'/train.csv',
-				'--features_path', split_dir+'/train_extra_x.csv',
-				'--separate_val_path', split_dir+'/valid.csv',
-				'--separate_val_features_path', split_dir+'/valid_extra_x.csv',
-				'--separate_test_path',split_dir+'/test.csv',
-				'--separate_test_features_path',split_dir+'/test_extra_x.csv',
-				'--data_weights_path',split_dir+'/train_weights.csv',
-				'--config_path','../data/args_files/optimized_configs.json',
-				'--loss_function','mse','--metric','rmse'
-			]
-			if 'morgan' in split_folder:
-				arguments += ['--features_generator','morgan_count']
-			args = chemprop.args.TrainArgs().parse_args(arguments)
-			mean_score, std_score = chemprop.train.cross_validate(args=args, train_func=chemprop.train.run_training)
-			print("mean score:", mean_score)
-			print("std_store:", std_score)
-
-	elif task_type == 'predict':
-		cv_num = 5
-		split_model_folder = '../data/crossval_splits/'+argv[2]
-		screen_name = argv[3]
-		# READ THE METADATA FILE TO A DF, THEN TAG ON THE PREDICTIONS TO GENERATE A COMPLETE PREDICTIONS FILE
-		all_df = pd.read_csv('../data/libraries/'+screen_name+'/'+screen_name+'_metadata.csv')
-		for cv in range(cv_num):
-			# results_dir = '../results/crossval_splits/'+split_model_folder+'cv_'+str(cv)
-			arguments = [
-				'--test_path','../data/libraries/'+screen_name+'/'+screen_name+'.csv',
-				'--features_path','../data/libraries/'+screen_name+'/'+screen_name+'_extra_x.csv',
-				'--checkpoint_dir', split_model_folder+'/cv_'+str(cv),
-				'--preds_path','../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/cv_'+str(cv)+'_preds.csv'
-			]
-			if 'morgan' in split_model_folder:
-					arguments = arguments + ['--features_generator','morgan_count']
-			args = chemprop.args.PredictArgs().parse_args(arguments)
-			preds = chemprop.train.make_predictions(args=args)
-			new_df = pd.read_csv('../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/cv_'+str(cv)+'_preds.csv')
-			all_df['smiles'] = new_df.smiles
-			all_df['cv_'+str(cv)+'_pred_delivery'] = new_df.quantified_delivery	
-		all_df['avg_pred_delivery'] = all_df[['cv_'+str(cv)+'_pred_delivery' for cv in range(cv_num)]].mean(axis=1)
-		all_df.to_csv('../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/pred_file.csv', index = False)
-	elif task_type == 'hyperparam_optimize':
-		split_folder = argv[2]
-		data_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
-		arguments = [
-			'--data_path',data_dir+'/train.csv',
-			'--features_path', data_dir+'/train_extra_x.csv',
-			'--separate_val_path', data_dir+'/valid.csv',
-			'--separate_val_features_path', data_dir+'/valid_extra_x.csv',
-			'--separate_test_path',data_dir+'/test.csv',
-			'--separate_test_features_path',data_dir+'/test_extra_x.csv',
-			'--dataset_type', 'regression',
-			'--num_iters', '5',
-			'--config_save_path','..results/'+split_folder+'/hyp_cv_0.json',
-			'--epochs', '5'
-		]
-		args = chemprop.args.HyperoptArgs().parse_args(arguments)
-		chemprop.hyperparameter_optimization.hyperopt(args)
-	elif task_type == 'analyze':
-		# output.to_csv(path_to_folders+'/cv_'+str(i)+'/Predicted_vs_actual.csv', index = False)
-		split = argv[2]
-		make_pred_vs_actual(split, predictions_done = [], ensemble_size = 5)
-		analyze_predictions_cv(split)
-	elif task_type == 'merge_datasets':
-		merge_datasets(None)
-	elif task_type == 'split':
-		split = argv[2]
-		ultra_held_out = float(argv[3])
-		is_morgan = False
-		in_silico_screen = False
-		if len(argv)>4:
-			if argv[4]=='morgan':
-				is_morgan = True
-				if len(argv)>5 and argv[5]=='in_silico_screen_split':
-					in_silico_screen = True
-			elif argv[4]=='in_silico_screen_split':
-				in_silico_screen = True
-		specified_cv_split(split,ultra_held_out_fraction = ultra_held_out, is_morgan = is_morgan, test_is_valid = in_silico_screen)
-
-if __name__ == '__main__':
-	main(sys.argv)
-
-# called in make_pred_vs_actual, analyze_predictions_cv, specified_cv_split
-def path_if_none(newpath):
-	if not os.path.exists(newpath):
-		os.makedirs(newpath)
-
-
 # these functions called in main 
 def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [], path_to_new_test = '',standardize_predictions = True):
 	# Makes predictions on each test set in a cross-validation-split system
@@ -657,7 +550,6 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
 		yxwm_to_csvs(y,x,w,m,split_path+'/cv_'+str(i),'train')
 # these functions called in main 
 
-
 # called in merge_datasets
 def generate_normalized_data(all_df, split_variables = ['Experiment_ID','Library_ID','Delivery_target','Model_type','Route_of_administration']):
 	split_names = []
@@ -713,3 +605,111 @@ def split_for_cv(vals,cv_fold, held_out_fraction):
 	return [cv_vals[i::cv_fold] for i in range(cv_fold)],held_out_vals
 
 # these functions only used in specified_cv_split
+
+def main(argv):
+	# args = sys.argv[1:]
+	task_type = argv[1]
+	if task_type == 'train':
+		split_folder = argv[2]
+		epochs = 50
+		cv_num = 5
+		for i, arg in enumerate(argv):
+			if arg.replace('–', '-') == '--epochs':
+				epochs = argv[i+1]
+				print('this many epochs: ',str(epochs))
+
+		for cv in range(cv_num):
+			split_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
+			arguments = [
+				'--epochs',str(epochs),
+				'--save_dir',split_dir,
+				'--seed','42',
+				'--dataset_type','regression',
+				'--data_path',split_dir+'/train.csv',
+				'--features_path', split_dir+'/train_extra_x.csv',
+				'--separate_val_path', split_dir+'/valid.csv',
+				'--separate_val_features_path', split_dir+'/valid_extra_x.csv',
+				'--separate_test_path',split_dir+'/test.csv',
+				'--separate_test_features_path',split_dir+'/test_extra_x.csv',
+				'--data_weights_path',split_dir+'/train_weights.csv',
+				'--config_path','../data/args_files/optimized_configs.json',
+				'--loss_function','mse','--metric','rmse'
+			]
+			if 'morgan' in split_folder:
+				arguments += ['--features_generator','morgan_count']
+			args = chemprop.args.TrainArgs().parse_args(arguments)
+			mean_score, std_score = chemprop.train.cross_validate(args=args, train_func=chemprop.train.run_training)
+			print("mean score:", mean_score)
+			print("std_store:", std_score)
+
+	elif task_type == 'predict':
+		cv_num = 5
+		split_model_folder = '../data/crossval_splits/'+argv[2]
+		screen_name = argv[3]
+		# READ THE METADATA FILE TO A DF, THEN TAG ON THE PREDICTIONS TO GENERATE A COMPLETE PREDICTIONS FILE
+		all_df = pd.read_csv('../data/libraries/'+screen_name+'/'+screen_name+'_metadata.csv')
+		for cv in range(cv_num):
+			# results_dir = '../results/crossval_splits/'+split_model_folder+'cv_'+str(cv)
+			arguments = [
+				'--test_path','../data/libraries/'+screen_name+'/'+screen_name+'.csv',
+				'--features_path','../data/libraries/'+screen_name+'/'+screen_name+'_extra_x.csv',
+				'--checkpoint_dir', split_model_folder+'/cv_'+str(cv),
+				'--preds_path','../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/cv_'+str(cv)+'_preds.csv'
+			]
+			if 'morgan' in split_model_folder:
+					arguments = arguments + ['--features_generator','morgan_count']
+			args = chemprop.args.PredictArgs().parse_args(arguments)
+			preds = chemprop.train.make_predictions(args=args)
+			new_df = pd.read_csv('../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/cv_'+str(cv)+'_preds.csv')
+			all_df['smiles'] = new_df.smiles
+			all_df['cv_'+str(cv)+'_pred_delivery'] = new_df.quantified_delivery	
+		all_df['avg_pred_delivery'] = all_df[['cv_'+str(cv)+'_pred_delivery' for cv in range(cv_num)]].mean(axis=1)
+		all_df.to_csv('../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/pred_file.csv', index = False)
+	elif task_type == 'hyperparam_optimize':
+		split_folder = argv[2]
+		data_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
+		arguments = [
+			'--data_path',data_dir+'/train.csv',
+			'--features_path', data_dir+'/train_extra_x.csv',
+			'--separate_val_path', data_dir+'/valid.csv',
+			'--separate_val_features_path', data_dir+'/valid_extra_x.csv',
+			'--separate_test_path',data_dir+'/test.csv',
+			'--separate_test_features_path',data_dir+'/test_extra_x.csv',
+			'--dataset_type', 'regression',
+			'--num_iters', '5',
+			'--config_save_path','..results/'+split_folder+'/hyp_cv_0.json',
+			'--epochs', '5'
+		]
+		args = chemprop.args.HyperoptArgs().parse_args(arguments)
+		chemprop.hyperparameter_optimization.hyperopt(args)
+	elif task_type == 'analyze':
+		# output.to_csv(path_to_folders+'/cv_'+str(i)+'/Predicted_vs_actual.csv', index = False)
+		split = argv[2]
+		make_pred_vs_actual(split, predictions_done = [], ensemble_size = 5)
+		analyze_predictions_cv(split)
+	elif task_type == 'merge_datasets':
+		merge_datasets(None)
+	elif task_type == 'split':
+		split = argv[2]
+		ultra_held_out = float(argv[3])
+		is_morgan = False
+		in_silico_screen = False
+		if len(argv)>4:
+			if argv[4]=='morgan':
+				is_morgan = True
+				if len(argv)>5 and argv[5]=='in_silico_screen_split':
+					in_silico_screen = True
+			elif argv[4]=='in_silico_screen_split':
+				in_silico_screen = True
+		specified_cv_split(split,ultra_held_out_fraction = ultra_held_out, is_morgan = is_morgan, test_is_valid = in_silico_screen)
+
+if __name__ == '__main__':
+	main(sys.argv)
+
+# called in make_pred_vs_actual, analyze_predictions_cv, specified_cv_split
+def path_if_none(newpath):
+	if not os.path.exists(newpath):
+		os.makedirs(newpath)
+
+
+
