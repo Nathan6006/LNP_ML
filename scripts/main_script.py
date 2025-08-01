@@ -3,7 +3,6 @@ import os
 import pandas as pd  # type: ignore
 from sklearn.model_selection import train_test_split # type: ignore
 from sklearn.metrics import mean_squared_error, roc_curve, roc_auc_score # type: ignore
-# from train_multitask import train_multitask_model, get_base_args, optimize_hyperparameters, train_hyperparam_optimized_model
 from train_multitask import train_multitask_model, get_base_args, train_hyperparam_optimized_model
 from predict_multitask_from_json import predict_multitask_from_json, get_base_predict_args, predict_multitask_from_json_cv
 from rdkit import Chem # type: ignore
@@ -710,11 +709,5 @@ def main(argv):
 
 if __name__ == '__main__':
 	main(sys.argv)
-
-# called in make_pred_vs_actual, analyze_predictions_cv, specified_cv_split
-def path_if_none(newpath):
-	if not os.path.exists(newpath):
-		os.makedirs(newpath)
-
 
 
