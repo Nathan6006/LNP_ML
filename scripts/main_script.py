@@ -20,7 +20,6 @@ def path_if_none(newpath):
 	if not os.path.exists(newpath):
 		os.makedirs(newpath)
 
-
 # these functions called in main 
 def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [], path_to_new_test = '',standardize_predictions = True):
 	# Makes predictions on each test set in a cross-validation-split system
