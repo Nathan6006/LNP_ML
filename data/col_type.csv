@@ -58,6 +58,7 @@ Disulfide,Metadata
 Total_radiance,Metadata
 Form_comment,Metadata
 molecular_weight,Metadata
+quantified_toxicity,Y_val
 Delivery_target_dendritic_cell,X_val
 Delivery_target_generic_cell,X_val
 Delivery_target_liver,X_val
@@ -70,13 +71,13 @@ Helper_lipid_ID_DOPE,X_val
 Helper_lipid_ID_DOTAP,X_val
 Helper_lipid_ID_DSPC,X_val
 Helper_lipid_ID_MDOA,X_val
-Helper_lipid_ID_None,X_val
 Route_of_administration_in_vitro,X_val
 Route_of_administration_intramuscular,X_val
 Route_of_administration_intratracheal,X_val
 Route_of_administration_intravenous,X_val
 Batch_or_individual_or_barcoded_Barcoded,X_val
 Batch_or_individual_or_barcoded_Individual,X_val
+Cargo_type_ mRNA,X_val
 Cargo_type_mRNA,X_val
 Cargo_type_pDNA,X_val
 Cargo_type_siRNA,X_val
