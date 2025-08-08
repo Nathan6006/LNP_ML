@@ -34,11 +34,12 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
         
         try: 
             output = pd.read_csv(results_dir+'/predicted_vs_actual.csv')
-            print()
+            print("pred vs actual already exist")
         except:
             try:
                 current_predictions = pd.read_csv(data_dir+'/preds.csv')
             except:
+                print("reruning predict")
                 arguments = [
                     '--test_path',data_dir+'/test.csv',
                     '--features_path',data_dir+'/test_extra_x.csv',
@@ -53,21 +54,19 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
             
             current_predictions.drop(columns = ['smiles'], inplace = True)
             for col in current_predictions.columns:
-                print(col)
                 if standardize_predictions:
                     preds_to_standardize = current_predictions[col]
                     std = np.std(preds_to_standardize)
                     mean = np.mean(preds_to_standardize)
                     current_predictions[col] = [(val-mean)/std for val in current_predictions[col]]
-                col = col.replace("quantified_", "")
-                print("2", col)
                 current_predictions.rename(columns = {col:('cv_'+str(cv)+'_pred_'+col[:])}, inplace = True)
             output = pd.concat([output, current_predictions], axis = 1)
+
             # move new prediction columns to the front
             new_cols = current_predictions.columns.tolist()
-            output = output[new_cols + [col for col in output.columns if col not in new_cols]]
-            output.to_csv(results_dir+'/predicted_vs_actual.csv', index=False)
-            print("output", output)
+            new_cols = new_cols + ["quantified_delivery", "quantified_toxicity"]
+            path = results_dir+'/predicted_vs_actual.csv'
+            change_column_order(path, output, first_cols= new_cols)
     
     if '_with_ultra_held_out' in split_folder:
         results_dir = '../results/crossval_splits/'+split_folder+'/ultra_held_out'
@@ -101,6 +100,7 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
                     current_predictions[col] = [(val-mean)/std for val in current_predictions[col]]
                 current_predictions.rename(columns = {col:('cv_'+str(cv)+'_pred_'+col)}, inplace = True)
             output = pd.concat([output, current_predictions], axis = 1)
+
         pred_cols = [col for col in output.columns if '_pred_' in col]
         output['Avg_pred_quantified_delivery'] = output[pred_cols].mean(axis = 1)
         output.to_csv(results_dir+'/predicted_vs_actual.csv',index = False)
@@ -115,6 +115,7 @@ def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','
     all_spearman = {}
     all_rmse = {}
     all_unique = []
+
     for i in range(ensemble_number):
         preds_vs_actual = pd.read_csv(path_to_preds+split_name+'/cv_'+str(i)+'/predicted_vs_actual.csv')
         pred_split_names = []
