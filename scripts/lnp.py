@@ -24,6 +24,7 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
     # Makes predictions on each test set in a cross-validation-split system
     # Not used for screening a new library, used for predicting on the test set of the existing dataset
     for cv in range(ensemble_size):
+        print(cv)
         data_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
         results_dir = '../results/crossval_splits/'+split_folder+'/cv_'+str(cv)
         path_if_none(results_dir)
@@ -33,6 +34,7 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
         
         try: 
             output = pd.read_csv(results_dir+'/predicted_vs_actual.csv')
+            print()
         except:
             try:
                 current_predictions = pd.read_csv(data_dir+'/preds.csv')
@@ -51,14 +53,21 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
             
             current_predictions.drop(columns = ['smiles'], inplace = True)
             for col in current_predictions.columns:
+                print(col)
                 if standardize_predictions:
                     preds_to_standardize = current_predictions[col]
                     std = np.std(preds_to_standardize)
                     mean = np.mean(preds_to_standardize)
                     current_predictions[col] = [(val-mean)/std for val in current_predictions[col]]
-                current_predictions.rename(columns = {col:('cv_'+str(cv)+'_pred_'+col)}, inplace = True)
+                col = col.replace("quantified_", "")
+                print("2", col)
+                current_predictions.rename(columns = {col:('cv_'+str(cv)+'_pred_'+col[:])}, inplace = True)
             output = pd.concat([output, current_predictions], axis = 1)
-            output.to_csv(results_dir+'/predicted_vs_actual.csv', index = False)
+            # move new prediction columns to the front
+            new_cols = current_predictions.columns.tolist()
+            output = output[new_cols + [col for col in output.columns if col not in new_cols]]
+            output.to_csv(results_dir+'/predicted_vs_actual.csv', index=False)
+            print("output", output)
     
     if '_with_ultra_held_out' in split_folder:
         results_dir = '../results/crossval_splits/'+split_folder+'/ultra_held_out'
@@ -98,8 +107,7 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
 
 def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','Library_ID','Delivery_target','Route_of_administration'], path_to_preds = '../results/crossval_splits/', ensemble_number = 5, min_values_for_analysis = 10):
     summary_table = pd.DataFrame({})
-    all_names = {}
-    # all_dtypes = {}
+
     all_ns = {}
     all_pearson = {}
     all_pearson_p_val = {}
@@ -206,7 +214,6 @@ def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','
     # Now analyze the ultra-held-out set
     try:
         preds_vs_actual = pd.read_csv(path_to_preds+split_name+'/ultra_held_out/predicted_vs_actual.csv')
-        names = []
         ns = []
         pearsons = []
         pearson_p_vals = []
@@ -337,12 +344,10 @@ def merge_datasets(experiment_list, path_to_folders = '../data/data_files_to_mer
     experiment_df = pd.read_csv(path_to_folders + '/experiment_metadata.csv')
     if experiment_list == None:
         experiment_list = list(experiment_df.Experiment_ID)
-        print(experiment_list)
     y_val_cols = []
     helper_mol_weights = pd.read_csv(path_to_folders + '/Component_molecular_weights.csv')
 
     for folder in experiment_list:
-        print(folder)
         contin = False
         try:
             main_temp = pd.read_csv(path_to_folders + '/' + folder + '/main_data.csv')
@@ -470,12 +475,15 @@ def merge_datasets(experiment_list, path_to_folders = '../data/data_files_to_mer
             col_type['Type'].append('Metadata')
 
     col_type_df = pd.DataFrame(col_type)
-    norm_split_names, norm_del = generate_normalized_data(all_df)
+    norm_split_names, norm_del, norm_tox = generate_normalized_data(all_df)
     all_df['split_name_for_normalization'] = norm_split_names
     all_df.rename(columns = {'quantified_delivery':'unnormalized_delivery'}, inplace = True)
     all_df['quantified_delivery'] = norm_del
+    all_df.rename(columns = {'quantified_toxicity':'unnormalized_toxicity'}, inplace = True)
+    all_df['quantified_toxicity'] = norm_tox
     all_df = all_df.replace({True: 1.0, False: 0.0})
-    all_df.to_csv(write_path + '/all_data.csv', index = False)
+    path = write_path + '/all_data.csv'
+    change_column_order(path, all_df)
     col_type_df.to_csv(write_path + '/col_type.csv', index = False)
 
 def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan = False, cv_fold = 5, ultra_held_out_fraction = -1.0, min_unique_vals = 2.0, test_is_valid = False):
@@ -484,6 +492,7 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
     # cv_fold: self-explanatory
     # ultra_held_out_fraction: if you want to hold a dataset out from even the cross-validation datasets this is the way to do it
     # test_is_valid: if true, then does the split where the test set is just the validation set, so that maximum data can be reserved for training set (this is for doing in siico screening)
+    
     all_df = pd.read_csv(path_to_folders + '/all_data.csv')
     split_df = pd.read_csv(path_to_folders+'/crossval_split_specs/'+split_spec_fname)
     split_path = path_to_folders + '/crossval_splits/' + split_spec_fname[:-4]
@@ -512,6 +521,7 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
 
         values_to_split = df_to_concat[row['Data_type_for_split']]
         unique_values_to_split = list(set(values_to_split))
+        print("unique", unique_values_to_split)
         if row['Train_or_split'].lower() == 'train': #or len(unique_values_to_split)<min_unique_vals*cv_fold:
             perma_train = pd.concat([perma_train, df_to_concat]) #if set to train or not enough vals, perma train
         elif row['Train_or_split'].lower() == 'split':
@@ -554,26 +564,39 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
 # called in merge_datasets
 def generate_normalized_data(all_df, split_variables = ['Experiment_ID','Library_ID','Delivery_target','Model_type','Route_of_administration']):
     split_names = []
-    norm_dict = {}
+    norm_dict_del = {}
+    norm_dict_tox = {}
     for index, row in all_df.iterrows():
         split_name = ''
         for vbl in split_variables:
-            # print(row[vbl])
-            # print(vbl)
             split_name = split_name + str(row[vbl])+'_'
         split_names.append(split_name[:-1])
     unique_split_names = set(split_names)
     for split_name in unique_split_names:
         data_subset = all_df[[spl==split_name for spl in split_names]]
-        norm_dict[split_name] = (np.mean(data_subset['quantified_delivery']), np.std(data_subset['quantified_delivery']))
+        norm_dict_del[split_name] = (np.mean(data_subset['quantified_delivery']), np.std(data_subset['quantified_delivery']))
+        norm_dict_tox[split_name] = (np.mean(data_subset['quantified_toxicity']), np.std(data_subset['quantified_toxicity']))
     norm_delivery = []
+    norm_toxicity = []
     for i, row in all_df.iterrows():
         val = row['quantified_delivery']
         split = split_names[i]
-        stdev = norm_dict[split][1]
-        mean = norm_dict[split][0]
+        stdev = norm_dict_del[split][1]
+        mean = norm_dict_del[split][0]
         norm_delivery.append((float(val)-mean)/stdev)
-    return split_names, norm_delivery
+
+        tox = row['quantified_toxicity']
+        split_tox = split_names[i]
+        std_tox = norm_dict_tox[split][1]
+        mn_tox = norm_dict_tox[split][0]
+        norm_toxicity.append((float(val)-mean)/stdev)
+
+    return split_names, norm_delivery, norm_toxicity
+
+def change_column_order(path, all_df, first_cols = ['smiles','quantified_delivery','unnormalized_delivery','quantified_toxicity','unnormalized_toxicity']):
+    other_cols = [col for col in all_df.columns if col not in first_cols]
+    all_df = all_df[first_cols + other_cols]
+    all_df.to_csv(path, index=False)
 
 # these functions only used in specified_cv_split
 def split_df_by_col_type(df,col_types):
@@ -595,10 +618,11 @@ def yxwm_to_csvs(y, x, w, m, path,settype):
 
 def split_for_cv(vals,cv_fold, held_out_fraction):
     # randomly splits vals into cv_fold groups, plus held_out_fraction of vals are completely held out. So for example split_for_cv(vals,5,0.1) will hold out 10% of data and randomly put 18% into each of 5 folds
+    random.seed(42)
     random.shuffle(vals)
     held_out_vals = vals[:int(held_out_fraction*len(vals))]
     cv_vals = vals[int(held_out_fraction*len(vals)):]
-    return [cv_vals[i::cv_fold] for i in range(cv_fold)],held_out_vals
+    return [cv_vals[i::cv_fold] for i in range(cv_fold)], held_out_vals
 
 # these functions only used in specified_cv_split
 
@@ -654,46 +678,14 @@ def main(argv):
             print("mean score:", mean_score)
             print("std_store:", std_score)
 
-    elif task_type == 'train_multitask':
-        split_folder = argv[2]
-        epochs = 50
-        cv_num = 5
-        for i, arg in enumerate(argv):
-            if arg.replace('–', '-') == '--epochs':
-                epochs = argv[i+1]
-                print('this many epochs: ',str(epochs))
-
-        for cv in range(cv_num):
-            split_dir = '../data_multitask/crossval_splits/'+split_folder+'/cv_'+str(cv) 
-            #split_dir is the path to the folder with data 
-            arguments = [
-                '--epochs',str(epochs),
-                '--save_dir',split_dir,
-                '--seed','42',
-                '--dataset_type','regression',
-                '--data_path',split_dir+'/train.csv',
-                '--features_path', split_dir+'/train_extra_x.csv',
-                '--separate_val_path', split_dir+'/valid.csv',
-                '--separate_val_features_path', split_dir+'/valid_extra_x.csv',
-                '--separate_test_path',split_dir+'/test.csv',
-                '--separate_test_features_path',split_dir+'/test_extra_x.csv',
-                '--data_weights_path',split_dir+'/train_weights.csv',
-                '--config_path','../data/args_files/optimized_configs.json',
-                '--loss_function','mse',
-                '--metric','rmse'
-            ]
-            if 'morgan' in split_folder:
-                arguments += ['--features_generator','morgan_count']
-            args = chemprop.args.TrainArgs().parse_args(arguments)
-            mean_score, std_score = chemprop.train.cross_validate(args=args, train_func=chemprop.train.run_training)
-            print("mean score:", mean_score)
-            print("std_store:", std_score)
     elif task_type == 'analyze':
-        # output.to_csv(path_to_folders+'/cv_'+str(i)+'/Predicted_vs_actual.csv', index = False)
         split = argv[2]
+        print("analyze")
         make_pred_vs_actual(split, predictions_done = [], ensemble_size = 5)
+        print("two")
         analyze_predictions_cv(split)
-        
+        print("done")
+
     elif task_type == 'predict':
         cv_num = 5
         split_model_folder = '../data/crossval_splits/'+argv[2]
