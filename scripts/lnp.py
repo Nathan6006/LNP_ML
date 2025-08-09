@@ -3,8 +3,6 @@ import os
 import pandas as pd  # type: ignore
 from sklearn.model_selection import train_test_split # type: ignore
 from sklearn.metrics import mean_squared_error, roc_curve, roc_auc_score # type: ignore
-from train_multitask import train_multitask_model, get_base_args, train_hyperparam_optimized_model
-from predict_multitask_from_json import predict_multitask_from_json, get_base_predict_args, predict_multitask_from_json_cv
 from rdkit import Chem # type: ignore
 from rdkit.Chem import Descriptors # type: ignore
 import matplotlib.pyplot as plt # type: ignore
@@ -14,10 +12,15 @@ import sys
 import random
 import chemprop # type: ignore
 
-# called in make_pred_vs_actual, analyze_predictions_cv, specified_cv_split
+# general helper functions 
 def path_if_none(newpath):
     if not os.path.exists(newpath):
         os.makedirs(newpath)
+
+def change_column_order(path, all_df, first_cols = ['smiles','quantified_delivery','unnormalized_delivery','quantified_toxicity','unnormalized_toxicity']):
+    other_cols = [col for col in all_df.columns if col not in first_cols]
+    all_df = all_df[first_cols + other_cols]
+    all_df.to_csv(path, index=False)
 
 # these functions called in main 
 def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],standardize_predictions = True):
@@ -62,15 +65,23 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
                 current_predictions.rename(columns = {col:('cv_'+str(cv)+'_pred_'+col[:])}, inplace = True)
             output = pd.concat([output, current_predictions], axis = 1)
 
+            pred_split_variables = ['Experiment_ID', 'Library_ID', 'Delivery_target', 'Route_of_administration']
+
+            output['Prediction_split_name'] = output.apply(
+                lambda row: '_'.join(str(row[v]) for v in pred_split_variables),
+                axis=1
+            ) #add prediction_split_name column
+
             # move new prediction columns to the front
             new_cols = current_predictions.columns.tolist()
             new_cols = new_cols + ["quantified_delivery", "quantified_toxicity"]
             path = results_dir+'/predicted_vs_actual.csv'
             change_column_order(path, output, first_cols= new_cols)
     
-    if '_with_ultra_held_out' in split_folder:
+    if '_with_uho' in split_folder:
         results_dir = '../results/crossval_splits/'+split_folder+'/ultra_held_out'
         uho_dir = '../data/crossval_splits/'+split_folder+'/ultra_held_out'
+        path_if_none(results_dir)
         output = pd.read_csv(uho_dir+'/test.csv')
         metadata = pd.read_csv(uho_dir+'/test_metadata.csv')
         output = pd.concat([metadata, output], axis = 1)
@@ -91,6 +102,7 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
                 args = chemprop.args.PredictArgs().parse_args(arguments)
                 preds = chemprop.train.make_predictions(args=args)
                 current_predictions = pd.read_csv(results_dir+'/preds_cv_'+str(cv)+'.csv')
+            
             current_predictions.drop(columns = ['smiles'], inplace = True)
             for col in current_predictions.columns:
                 if standardize_predictions:
@@ -101,13 +113,25 @@ def make_pred_vs_actual(split_folder, ensemble_size = 5, predictions_done = [],s
                 current_predictions.rename(columns = {col:('cv_'+str(cv)+'_pred_'+col)}, inplace = True)
             output = pd.concat([output, current_predictions], axis = 1)
 
-        pred_cols = [col for col in output.columns if '_pred_' in col]
-        output['Avg_pred_quantified_delivery'] = output[pred_cols].mean(axis = 1)
-        output.to_csv(results_dir+'/predicted_vs_actual.csv',index = False)
+        pred_delivery_cols = [col for col in output.columns if 'pred_quantified_delivery' in col]
+        pred_toxicity_cols = [col for col in output.columns if 'pred_quantified_toxicity' in col]
+
+        output['Avg_pred_quantified_delivery'] = output[pred_delivery_cols].mean(axis = 1)
+        output['Avg_pred_quantified_toxicity'] = output[pred_toxicity_cols].mean(axis = 1)
+
+
+        path = results_dir+'/predicted_vs_actual.csv'
+        first_col = [
+            "smiles", "quantified_delivery", "quantified_toxicity", "cv_0_pred_quantified_delivery", 
+            "cv_0_pred_quantified_toxicity", "cv_1_pred_quantified_delivery", "cv_1_pred_quantified_toxicity", 
+            "cv_2_pred_quantified_delivery", "cv_2_pred_quantified_toxicity", "cv_3_pred_quantified_delivery", 
+            "cv_3_pred_quantified_toxicity", "cv_4_pred_quantified_delivery", "cv_4_pred_quantified_toxicity", 
+            "Avg_pred_quantified_delivery", "Avg_pred_quantified_toxicity"
+        ]
+
+        change_column_order(path, output, first_cols=first_col)
 
 def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','Library_ID','Delivery_target','Route_of_administration'], path_to_preds = '../results/crossval_splits/', ensemble_number = 5, min_values_for_analysis = 10):
-    summary_table = pd.DataFrame({})
-
     all_ns = {}
     all_pearson = {}
     all_pearson_p_val = {}
@@ -115,104 +139,173 @@ def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','
     all_spearman = {}
     all_rmse = {}
     all_unique = []
+    
+    all_unique = []
 
+    preds_vs_actual = []
     for i in range(ensemble_number):
-        preds_vs_actual = pd.read_csv(path_to_preds+split_name+'/cv_'+str(i)+'/predicted_vs_actual.csv')
-        pred_split_names = []
-        for index, row in preds_vs_actual.iterrows():
-            pred_split_name = ''
-            for vbl in pred_split_variables:
-                pred_split_name = pred_split_name + row[vbl] + '_'
-            pred_split_names.append(pred_split_name[:-1])
-        all_unique = all_unique + list(set(pred_split_names))
+        df = pd.read_csv(path_to_preds + split_name + '/cv_' + str(i) + '/predicted_vs_actual.csv')
+        preds_vs_actual.append(df)
+        unique = set(df['Prediction_split_name'].tolist())
+        all_unique.extend(unique)
+
     unique_pred_split_names = set(all_unique)
+
     for un in unique_pred_split_names:
-        # all_names[un] = []
-        # all_dtype,s[un] = []
         all_ns[un] = []
         all_pearson[un] = []
         all_pearson_p_val[un] = []
         all_kendall[un] = []
         all_spearman[un] = []
         all_rmse[un] = []
+
+    target_columns = [('quantified_delivery', 'delivery'), ('quantified_toxicity', 'toxicity')]
+
     for i in range(ensemble_number):
-        preds_vs_actual = pd.read_csv(path_to_preds+split_name+'/cv_'+str(i)+'/predicted_vs_actual.csv')
-        pred_split_names = []
-        for index, row in preds_vs_actual.iterrows():
-            pred_split_name = ''
-            for vbl in pred_split_variables:
-                pred_split_name = pred_split_name + row[vbl] + '_'
-            pred_split_names.append(pred_split_name[:-1])
-        preds_vs_actual['Prediction_split_name'] = pred_split_names
-        # unique_pred_split_names = set(pred_split_names)
-        cols = preds_vs_actual.columns
-        data_types = []
-        for col in cols:
-            if col[:3]=='cv_':
-                data_types.append(col)
-            
+        crossval_results_path = f"{path_to_preds}{split_name}/crossval_performance"
+        path_if_none(crossval_results_path)
+
+        fold_results = []  # stores rows for this fold
+
         for pred_split_name in unique_pred_split_names:
             path_if_none(path_to_preds+split_name+'/cv_'+str(i)+'/results')
-            data_subset = preds_vs_actual[preds_vs_actual['Prediction_split_name']==pred_split_name].reset_index(drop=True)
+            data_subset = preds_vs_actual[i][
+                preds_vs_actual[i]['Prediction_split_name'] == pred_split_name
+            ].reset_index(drop=True)
+
             value_names = set(list(data_subset.Value_name))
-            if len(value_names)>1:
-                raise Exception('Multiple types of measurement in the same prediction split: split ',pred_split_name,' has value names ',value_names,'. Try adding more pred split variables.')
-            elif len(value_names)==0:
-                value_name = 'Empty, ignore!'
-            else:
-                value_name = [val_name for val_name in value_names][0]
-            kept_dtypes = []
-            for dtype in data_types:
+            if len(value_names) > 1:
+                raise Exception(
+                    f'Multiple types of measurement in the same prediction split: split {pred_split_name} has value names {value_names}. Try adding more pred split variables.'
+                )
 
-                analyzed_path = path_to_preds+split_name+'/cv_'+str(i)+'/results/'+pred_split_name+'/'+dtype
-                path_if_none(analyzed_path)
+            for actual_col, label in target_columns:
+                if actual_col not in data_subset.columns:
+                    continue  # skip if target missing in this split
 
-                kept_dtypes.append(dtype)
-                analyzed_data = pd.DataFrame({'smiles':data_subset.smiles})
-                actual = data_subset['quantified_delivery']
-                pred = data_subset['cv_'+str(i)+'_pred_quantified_delivery']
-                if len(actual)>=min_values_for_analysis:
-                    pearson = scipy.stats.pearsonr(actual, pred)
-                    spearman, pval = scipy.stats.spearmanr(actual, pred)
-                    kendall, pval = scipy.stats.kendalltau(actual, pred)
+                actual = data_subset[actual_col]
+                pred_col = f'cv_{i}_pred_{actual_col}'
+                if pred_col not in data_subset.columns:
+                    continue  # skip if predictions missing
+
+                pred = data_subset[pred_col]
+
+                analyzed_data = pd.DataFrame({
+                    'smiles': data_subset.smiles,
+                    'actual': actual,
+                    'predicted': pred
+                 })
                 
+                if len(actual) >= min_values_for_analysis:
+                    pearson_r, pearson_p = scipy.stats.pearsonr(actual, pred)
+                    spearman_r, _ = scipy.stats.spearmanr(actual, pred)
+                    kendall_r, _ = scipy.stats.kendalltau(actual, pred)
                     rmse = np.sqrt(mean_squared_error(actual, pred))
-                    all_rmse[pred_split_name] = all_rmse[pred_split_name] + [rmse]
-                    
-                    all_pearson[pred_split_name] = all_pearson[pred_split_name] + [pearson[0]]
-                    all_pearson_p_val[pred_split_name] = all_pearson_p_val[pred_split_name] + [pearson[1]]
-                    all_kendall[pred_split_name] = all_kendall[pred_split_name] + [kendall]
-                    all_spearman[pred_split_name] = all_spearman[pred_split_name] + [spearman]
-                    plt.figure()
-                    plt.scatter(pred,actual,color = 'black')
-                    plt.plot(np.unique(pred),np.poly1d(np.polyfit(pred, actual, 1))(np.unique(pred)))
-                    plt.xlabel('Predicted '+value_name)
-                    plt.ylabel('Experimental '+value_name)
-                    plt.savefig(analyzed_path+'/pred_vs_actual.png')
-                    plt.close()
+                    n_vals = len(pred)
                 else:
-                    all_rmse[pred_split_name] = all_rmse[pred_split_name] + [float('nan')]
-                    all_pearson[pred_split_name] = all_pearson[pred_split_name] + [float('nan')]
-                    all_pearson_p_val[pred_split_name] = all_pearson_p_val[pred_split_name] + [float('nan')]
-                    all_kendall[pred_split_name] = all_kendall[pred_split_name] + [float('nan')]
-                    all_spearman[pred_split_name] = all_spearman[pred_split_name] + [float('nan')]
+                    pearson_r, pearson_p, spearman_r, kendall_r, rmse, n_vals = [float('nan')]*6
 
-                all_ns[pred_split_name] = all_ns[pred_split_name] + [len(pred)]
-
+                # Save scatter plot
+                analyzed_path = f"{path_to_preds}{split_name}/cv_{i}/results/{pred_split_name}/{label}"
+                path_if_none(analyzed_path)
+                plt.figure()
+                plt.scatter(pred, actual, color='black')
+                plt.plot(np.unique(pred), np.poly1d(np.polyfit(pred, actual, 1))(np.unique(pred)))
+                plt.xlabel(f'Predicted {label}')
+                plt.ylabel(f'Quantified {label}')
+                plt.savefig(analyzed_path + '/pred_vs_actual.png')
+                plt.close()
                 analyzed_data.to_csv(analyzed_path+'/pred_vs_actual_data.csv', index = False)
-    crossval_results_path = path_to_preds+split_name+'/crossval_performance'
-    path_if_none(crossval_results_path)
 
+                # Append a row to fold_results
+                fold_results.append({
+                    'fold': i,
+                    'split_name': pred_split_name,
+                    'target': label,
+                    'pearson': pearson_r,
+                    'pearson_p_val': pearson_p,
+                    'spearman': spearman_r,
+                    'kendall': kendall_r,
+                    'rmse': rmse,
+                    'n_vals': n_vals
+                })
 
-    pd.DataFrame.from_dict(all_ns).to_csv(crossval_results_path+'/n_vals.csv', index = True)
-    pd.DataFrame.from_dict(all_pearson).to_csv(crossval_results_path+'/pearson.csv', index = True)
-    pd.DataFrame.from_dict(all_pearson_p_val).to_csv(crossval_results_path+'/pearson_p_val.csv', index = True)
-    pd.DataFrame.from_dict(all_kendall).to_csv(crossval_results_path+'/kendall.csv', index = True)
-    pd.DataFrame.from_dict(all_spearman).to_csv(crossval_results_path+'/spearman.csv', index = True)
-    pd.DataFrame.from_dict(all_rmse).to_csv(crossval_results_path+'/rmse.csv', index = True)
+        # Save this fold's results as its own CSV
+        fold_df = pd.DataFrame(fold_results)
+        fold_df.to_csv(f"{crossval_results_path}/fold_{i}_metrics.csv", index=False)
 
 
     # Now analyze the ultra-held-out set
+    try:
+        preds_vs_actual = pd.read_csv(path_to_preds + split_name + '/ultra_held_out/predicted_vs_actual.csv')
+
+        preds_vs_actual['Prediction_split_name'] = preds_vs_actual[pred_split_variables].astype(str).agg('_'.join, axis=1)
+
+        unique_pred_split_names = preds_vs_actual['Prediction_split_name'].unique()
+
+        # Identify target columns (Avg_pred_*) for multi-task metrics
+        target_cols = [col for col in preds_vs_actual.columns if col.startswith('Avg_pred_')]
+        actual_cols = [col.replace('Avg_pred_', '') for col in target_cols]
+
+        # Create list to store all metrics
+        metrics_rows = []
+
+        for pred_split_name in unique_pred_split_names:
+            data_subset = preds_vs_actual[preds_vs_actual['Prediction_split_name'] == pred_split_name].reset_index(drop=True)
+
+            # loop throughtarget columns (delivery, toxicity, etc)
+            for target_col, actual_col in zip(target_cols, actual_cols):
+                actual = data_subset[actual_col]
+                pred = data_subset[target_col]
+
+                if actual.isna().all() or pred.isna().all(): #skip when all are NaN
+                    continue
+
+                pearson = scipy.stats.pearsonr(actual, pred)
+                spearman, _ = scipy.stats.spearmanr(actual, pred)
+                kendall, _ = scipy.stats.kendalltau(actual, pred)
+                rmse = np.sqrt(mean_squared_error(actual, pred))
+
+                # Save pred vs actual plot
+                analyzed_path = f"{path_to_preds}{split_name}/ultra_held_out/individual_dataset_results/{pred_split_name}"
+                path_if_none(analyzed_path)
+                plt.figure()
+                plt.scatter(pred, actual, color='black')
+                plt.plot(np.unique(pred), np.poly1d(np.polyfit(pred, actual, 1))(np.unique(pred)))
+                plt.xlabel(f"Predicted {actual_col}")
+                plt.ylabel(f"Experimental {actual_col}")
+                plt.savefig(f"{analyzed_path}/pred_vs_actual_{actual_col}.png")
+                plt.close()
+
+                # Save pred vs actual data
+                pd.DataFrame({
+                    'smiles': data_subset['smiles'],
+                    'actual': actual,
+                    'predicted': pred
+                }).to_csv(f"{analyzed_path}/pred_vs_actual_{actual_col}_data.csv", index=False)
+
+                # Append to metrics table
+                metrics_rows.append({
+                    'dataset_ID': pred_split_name,
+                    'target': actual_col,
+                    'n': len(pred),
+                    'pearson': pearson[0],
+                    'pearson_p_val': pearson[1],
+                    'kendall': kendall,
+                    'spearman': spearman,
+                    'rmse': rmse
+                })
+
+        # Save metrics table in combined format
+        uho_results_path = f"{path_to_preds}{split_name}/ultra_held_out"
+        path_if_none(uho_results_path)
+        metrics_df = pd.DataFrame(metrics_rows)
+        metrics_df.to_csv(f"{uho_results_path}/ultra_held_out_metrics.csv", index=False)
+
+    except Exception as e:
+        print(f"Ultra-held-out analysis failed: {e}")
+
+####
     try:
         preds_vs_actual = pd.read_csv(path_to_preds+split_name+'/ultra_held_out/predicted_vs_actual.csv')
         ns = []
@@ -243,7 +336,6 @@ def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','
             
 
         for pred_split_name in unique_pred_split_names:
-            # path_if_none(path_to_preds+split_name+'/ultra_held_out/results')
             split_names.append(pred_split_name)
             data_subset = preds_vs_actual[preds_vs_actual['Prediction_split_name']==pred_split_name].reset_index(drop=True)
             value_names = set(list(data_subset.Value_name))
@@ -497,13 +589,13 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
     all_df = pd.read_csv(path_to_folders + '/all_data.csv')
     split_df = pd.read_csv(path_to_folders+'/crossval_split_specs/'+split_spec_fname)
     split_path = path_to_folders + '/crossval_splits/' + split_spec_fname[:-4]
-    if ultra_held_out_fraction>-0.5:
-        split_path = split_path + '_with_ultra_held_out'
+    if ultra_held_out_fraction >=0:
+        split_path = split_path + '_with_uho'
     if is_morgan:
         split_path = split_path + '_morgan'
     if test_is_valid:
-        split_path = split_path + '_for_in_silico_screen'
-    if ultra_held_out_fraction>-0.5:
+        split_path = split_path + '_for_iss'
+    if ultra_held_out_fraction >=0:
         path_if_none(split_path + '/ultra_held_out')
     for i in range(cv_fold):
         path_if_none(split_path+'/cv_'+str(i))
@@ -518,11 +610,9 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
         df_to_concat = all_df
         for i, dtype in enumerate(dtypes): #filter df_to_concat to only the data points specified in spilt
             df_to_concat = df_to_concat[df_to_concat[dtype.strip()]==vals[i].strip()].reset_index(drop = True)
-        # print("df_to_concat", df_to_concat)
 
         values_to_split = df_to_concat[row['Data_type_for_split']]
         unique_values_to_split = list(set(values_to_split))
-        print("unique", unique_values_to_split)
         if row['Train_or_split'].lower() == 'train': #or len(unique_values_to_split)<min_unique_vals*cv_fold:
             perma_train = pd.concat([perma_train, df_to_concat]) #if set to train or not enough vals, perma train
         elif row['Train_or_split'].lower() == 'split':
@@ -534,11 +624,9 @@ def specified_cv_split(split_spec_fname, path_to_folders = '../data', is_morgan 
 
 
     col_types = pd.read_csv(path_to_folders + '/col_type.csv')
-    # print("col_types", col_types[col_types['Type'] == 'X_val']['Column_name'].tolist())
-    # print("cv", cv_splits)
 
     # Now move the dfs to datafiles
-    if ultra_held_out_fraction>-0.5:
+    if ultra_held_out_fraction >=0:
         y,x,w,m = split_df_by_col_type(ultra_held_out,col_types)
         yxwm_to_csvs(y,x,w,m,split_path+'/ultra_held_out','test')
 
@@ -593,11 +681,6 @@ def generate_normalized_data(all_df, split_variables = ['Experiment_ID','Library
         norm_toxicity.append((float(val)-mean)/stdev)
 
     return split_names, norm_delivery, norm_toxicity
-
-def change_column_order(path, all_df, first_cols = ['smiles','quantified_delivery','unnormalized_delivery','quantified_toxicity','unnormalized_toxicity']):
-    other_cols = [col for col in all_df.columns if col not in first_cols]
-    all_df = all_df[first_cols + other_cols]
-    all_df.to_csv(path, index=False)
 
 # these functions only used in specified_cv_split
 def split_df_by_col_type(df,col_types):
@@ -713,7 +796,13 @@ def main(argv):
             all_df['cv_'+str(cv)+'_pred_toxicity'] = new_df.quantified_toxicity	
         all_df['avg_pred_delivery'] = all_df[['cv_'+str(cv)+'_pred_delivery' for cv in range(cv_num)]].mean(axis=1)
         all_df['avg_pred_toxicity'] = all_df[['cv_'+str(cv)+'_pred_toxicity' for cv in range(cv_num)]].mean(axis=1)
-        all_df.to_csv('../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/pred_file.csv', index = False)
+        path = '../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/pred_file.csv'
+        first_cols = [
+            "cv_0_pred_delivery", "cv_0_pred_toxicity", "cv_1_pred_delivery", 
+            "cv_1_pred_toxicity", "cv_2_pred_delivery", "cv_2_pred_toxicity", "cv_3_pred_delivery",
+            "cv_3_pred_toxicity", "cv_4_pred_delivery", "cv_4_pred_toxicity", "avg_pred_delivery", "avg_pred_toxicity", "smiles"]
+        change_column_order(path, all_df, first_cols = first_cols)
+        #all_df.to_csv('../results/screen_results/'+argv[2]+'_preds'+'/'+screen_name+'/pred_file.csv', index = False)
     
     elif task_type == 'hyperparam_optimize':
         split_folder = argv[2]
