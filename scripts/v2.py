@@ -9,7 +9,16 @@ import scipy.stats
 import json
 import sys
 import random
-import chemprop # type: ignore
+from lightning import pytorch as pl # type: ignore 
+import torch # type: ignore 
+from pathlib import Path
+from chemprop import data, models, nn # type: ignore 
+from lightning.pytorch.loggers import CSVLogger
+
+
+# conda create -n lnp_ml python=3.11
+# conda activate lnp_ml
+# pip install chemprop==2.2.1
 
 # general helper functions 
 def path_if_none(newpath):
@@ -22,6 +31,67 @@ def change_column_order(path, all_df, first_cols = ['smiles','quantified_deliver
     all_df.to_csv(path, index=False)
 
 # these functions called in main 
+class MyMoleculeDataset(data.MoleculeDataset):
+    def __len__(self):
+        return len(self.data)
+    
+def train(split_dir ='../data', smiles_column='smiles', target_columns = ["quantified_delivery", "quantified_toxicity"], epochs=50, save_dir='../data'):
+    def load_datapoints(smiles_csv, extra_csv):
+        df_smi = pd.read_csv(smiles_csv)
+        df_extra = pd.read_csv(extra_csv)
+
+        smis = df_smi[smiles_column].values
+        ys = df_smi[target_columns].values
+        extra_features = df_extra.to_numpy(dtype=float)
+
+        datapoints = [
+            data.MoleculeDatapoint.from_smi(smi, y, x_d=xf)
+            for smi, y, xf in zip(smis, ys, extra_features)
+        ]
+        return datapoints
+
+    train_datapoints = load_datapoints(split_dir+'/train.csv', split_dir+'/train_extra_x.csv')
+    val_datapoints   = load_datapoints(split_dir+'/valid.csv', split_dir+'/valid_extra_x.csv')
+    #test_datapoints  = load_datapoints(split_dir+'/test.csv', split_dir+'/test_extra_x.csv')
+
+    # train_dset = data.MoleculeDataset(train_datapoints)
+    # val_dset   = data.MoleculeDataset(val_datapoints)
+    #test_dset  = data.MoleculeDataset(test_datapoints)
+    train_dset = MyMoleculeDataset(train_datapoints)
+    val_dset = MyMoleculeDataset(val_datapoints)
+
+    # 3. Scale targets and extra features
+
+    extra_features_scaler = train_dset.normalize_inputs("X_d")
+    val_dset.normalize_inputs("X_d", extra_features_scaler)
+    #test_dset.normalize_inputs("X_d", extra_features_scaler)
+
+    train_loader = data.build_dataloader(train_dset, num_workers=2, persistent_workers=True, prefetch_factor=2)
+    val_loader = data.build_dataloader(val_dset, shuffle=False, num_workers=2, persistent_workers=True, prefetch_factor=2)
+    #test_loader = data.build_dataloader(test_dset, shuffle=False, num_workers=4, persistent_workers=True)
+    
+    # Step 4: define the model
+
+    ffn_input_dim = train_dset[0].x_d.shape[0] + nn.BondMessagePassing().output_dim
+
+
+    ffn = nn.RegressionFFN(
+        n_tasks = len(target_columns), 
+        input_dim=ffn_input_dim
+    )
+    
+    chemprop_model = models.MPNN(
+        nn.BondMessagePassing(),
+        nn.MeanAggregation(),
+        ffn
+    )
+
+    #train 
+    logger = CSVLogger("logs", name="chemprop_runs")
+    trainer = pl.Trainer(logger=logger, enable_checkpointing=False, max_epochs=epochs, num_sanity_val_steps=0)
+    trainer.fit(chemprop_model, train_loader, val_loader)
+    torch.save(chemprop_model.state_dict(), save_dir)
+    
 def make_pred_vs_actual(split_folder, ensemble_size = 5, standardize_predictions = True):
     # Makes predictions on each test set in a cross-validation-split system
     # Not used for screening a new library, used for predicting on the test set of the existing dataset
@@ -327,7 +397,7 @@ def analyze_predictions_cv(split_name, pred_split_variables = ['Experiment_ID','
         print(f"Ultra-held-out analysis failed: {e}")
 
 
-def merge_datasets(experiment_list_del, experiment_list_tox, path_to_folders = '../data/data_files_to_merge', write_path = '../data'): 
+def merge_datasets(experiment_list, path_to_folders = '../data/data_files_to_merge', write_path = '../data'): 
     # Each folder contains the following files: 
     # main_data.csv: a csv file with columns: 'smiles', which should contain the SMILES of the ionizable lipid, the activity measurements for that measurement
     # If the same ionizable lipid is measured multiple times (i.e. for different properties, or transfection in vitro and in vivo) make separate rows, one for each measurement
@@ -366,13 +436,13 @@ def merge_datasets(experiment_list_del, experiment_list_tox, path_to_folders = '
     all_df = pd.DataFrame({})
     col_type = {'Column_name':[],'Type':[]}
     experiment_df = pd.read_csv(path_to_folders + '/experiment_metadata.csv')
-    if experiment_list_del == None:
+    if experiment_list == None:
         print("370")
-        experiment_list_del = list(experiment_df.Experiment_ID)
+        experiment_list = list(experiment_df.Experiment_ID)
     y_val_cols = []
     helper_mol_weights = pd.read_csv(path_to_folders + '/Component_molecular_weights.csv')
 
-    for folder in experiment_list_del:
+    for folder in experiment_list:
         print("folder", folder)
         contin = False
         try:
@@ -677,32 +747,39 @@ def main(argv):
             if arg.replace('–', '-') == '--epochs':
                 epochs = argv[i+1]
                 print('this many epochs: ',str(epochs))
+                epochs = int(epochs)
+        for cv in range(cv_num):
+            split_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
 
+            save_dir = split_dir+'/model_'+str(cv)+'.pt'
+            train(split_dir=split_dir,epochs=epochs, save_dir=save_dir)
+
+        return
+    
         for cv in range(cv_num):
             split_dir = '../data/crossval_splits/'+split_folder+'/cv_'+str(cv)
             arguments = [
                 '--epochs',str(epochs),
-                '--save_dir',split_dir,
+                '--save-dir',split_dir,
                 '--seed','42',
-                '--dataset_type','regression',
-                '--data_path',split_dir+'/train.csv',
-                '--features_path', split_dir+'/train_extra_x.csv',
+                '--pytorch-seed','42',
+                '--task-type','regression',
+                '--data-path',split_dir+'/train.csv',
+                '--descriptors-path', split_dir+'/train_extra_x.csv',
+                
                 '--separate_val_path', split_dir+'/valid.csv',
                 '--separate_val_features_path', split_dir+'/valid_extra_x.csv',
                 '--separate_test_path',split_dir+'/test.csv',
                 '--separate_test_features_path',split_dir+'/test_extra_x.csv',
-                '--data_weights_path',split_dir+'/train_weights.csv',
-                '--config_path','../data/args_files/optimized_configs.json',
-                '--loss_function','mse',
+                
+                '--data-weights-path',split_dir+'/train_weights.csv',
+                '--config-path','../data/args_files/optimized_configs.json',
+                '--loss-function','mse',
                 '--metric','rmse',
             ]
             if 'morgan' in split_folder:
-                arguments += ['--features_generator','morgan_count']
+                arguments += ['--features-generators','morgan_count']
 
-            args = chemprop.args.TrainArgs().parse_args(arguments)
-            mean_score, std_score = chemprop.train.cross_validate(args=args, train_func=chemprop.train.run_training)
-            print("mean score:", mean_score)
-            print("std_store:", std_score)
 
     elif task_type == 'analyze':
         split = argv[2]
@@ -765,7 +842,7 @@ def main(argv):
     
     elif task_type == 'merge':
         print("merge")
-        merge_datasets(None, None)
+        merge_datasets(None)
 
 
 if __name__ == '__main__':
