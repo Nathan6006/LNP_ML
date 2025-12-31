@@ -16,6 +16,12 @@ def dataset_to_numpy(datapoints, smiles_column="smiles", method="morgan"):
             embed = rdkit_descriptors(dp[smiles_column])
             embed = np.nan_to_num(embed, nan=0.0, posinf=0.0, neginf=0.0)
             embed = np.clip(embed, -1e6, 1e6)
+        elif method == "rdkit_morgan":
+            morgan = morgan_fingerprint(dp[smiles_column], use_counts=True)
+            rdkit = rdkit_descriptors(dp[smiles_column])
+            rdkit = np.nan_to_num(rdkit, nan=0.0, posinf=0.0, neginf=0.0)
+            rdkit = np.clip(rdkit, -1e6, 1e6)
+            embed = np.concatenate([morgan, rdkit])
         # Ensure dimensionality matches
         feats = np.concatenate([embed, np.array(extra_features)])
         X.append(feats)

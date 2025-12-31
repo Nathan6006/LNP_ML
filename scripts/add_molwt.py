@@ -9,21 +9,25 @@ to the correct molar ratios.
 """
 
 # List of folders to process
+# folders = [
+#     "../data/data_files_to_merge/Liu_iphos"
+#     # "../data/data_files_to_merge/Lin_peptide"
+#     # "../data/data_files_to_merge/Han_a3,"
+#     # "../data/data_files_to_merge/Han_branched,"
+#     # "../data/data_files_to_merge/Han_amidine,"
+#     # "../data/data_files_to_merge/Miller_Zwitter,"
+#     # "../data/data_files_to_merge/3_tails",
+#     # "../data/data_files_to_merge/Lee_unsat"
+#     # "../data/data_files_to_merge/Farbiak_dendrimer_Hek",
+#     # "../data/data_files_to_merge/Farbiak_dendrimer_HeLa",
+#     # "../data/data_files_to_merge/Farbiak_dendrimer_igrov1",
+#     # "../data/data_files_to_merge/Xue_CAD_LNP",
+#     # "../data/data_files_to_merge/Yu_Aminoglycoside",
+#     # "../data/data_files_to_merge/Zhang_Aminoglycoside"
+# ]
+
 folders = [
-    "../data/data_files_to_merge/Liu_iphos"
-    # "../data/data_files_to_merge/Lin_peptide"
-    # "../data/data_files_to_merge/Han_a3,"
-    # "../data/data_files_to_merge/Han_branched,"
-    # "../data/data_files_to_merge/Han_amidine,"
-    # "../data/data_files_to_merge/Miller_Zwitter,"
-    # "../data/data_files_to_merge/3_tails",
-    # "../data/data_files_to_merge/Lee_unsat"
-    # "../data/data_files_to_merge/Farbiak_dendrimer_Hek",
-    # "../data/data_files_to_merge/Farbiak_dendrimer_HeLa",
-    # "../data/data_files_to_merge/Farbiak_dendrimer_igrov1",
-    # "../data/data_files_to_merge/Xue_CAD_LNP",
-    # "../data/data_files_to_merge/Yu_Aminoglycoside",
-    # "../data/data_files_to_merge/Zhang_Aminoglycoside"
+"../data_files/AGILE"
 ]
 
 def calculate_molwt(smiles):
@@ -42,7 +46,7 @@ for folder in folders:
     
     main_data_path = os.path.join(folder, "main_data.csv")
     metadata_path = os.path.join(folder, "individual_metadata.csv")
-    output_path = os.path.join(folder, "individual_metadata_.csv")
+    output_path = os.path.join(folder, "individual_metadata.csv")
     
     # Load data
     main_df = pd.read_csv(main_data_path)
