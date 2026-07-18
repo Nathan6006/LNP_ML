@@ -10,7 +10,7 @@ from rdkit.ML.Cluster import Butina
 from rdkit.Chem import rdFingerprintGenerator, Descriptors
 
 # --- Config ---
-DATA_PATH = '../data/all_data.csv'
+DATA_PATH = '../data/all_tox.csv'
 SMILES_COL = 'smiles'
 TARGET_COL = 'toxicity_class'
 WEIGHT_COL = 'Sample_weight'

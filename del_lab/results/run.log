@@ -1,0 +1,443 @@
+2026-07-17 13:56:01 drain.sh START (pid 12040)
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: baseline ===
+    Production delivery model: ChemBERTa-MTR + handcrafted + MolGpKa(mean,PCA64), within-exp LambdaRank (beta1,B1500,top_frac0.25), XGB_PARAMS. The number to beat.
+  ndcg@k_e 0.2706±0.020  gw_pair 0.5907  hit@5 0.1067  spearman +0.1588  | ens ndcg@k_e 0.2661 gw_pair 0.5974
+
+================================================================
+  VERDICT: BASELINE
+  pooled ndcg@k_e : 0.2706 ± 0.020   (baseline nan, best nan)
+  Δ vs baseline : nan   Δ vs best : nan
+  gw_pair 0.5907  spearman 0.1588  hit@5 0.107
+================================================================
+
+LEADERBOARD (1 run, primary=pooled ndcg@k_e):
+   1. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+
+PENDING (20): cbpca64, cbpca128, no_molgpka, molgpka_pca16, molgpka_pca32, no_chemberta, cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: cbpca64 ===
+    PCA-denoise ChemBERTa 384 -> 64 dims (train-fit). Was NEW BEST on the prior protocol (+0.019). Re-confirm first on the 4-fold/22%-eho protocol.
+  ndcg@k_e 0.2426±0.017  gw_pair 0.5882  hit@5 0.0867  spearman +0.1570  | ens ndcg@k_e 0.2406 gw_pair 0.5940
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2426 ± 0.017   (baseline 0.2706, best 0.2706)
+  Δ vs baseline : -0.0280   Δ vs best : -0.0280
+  gw_pair 0.5882  spearman 0.1570  hit@5 0.087
+================================================================
+
+LEADERBOARD (2 run, primary=pooled ndcg@k_e):
+   1. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   2. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+
+PENDING (19): cbpca128, no_molgpka, molgpka_pca16, molgpka_pca32, no_chemberta, cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: cbpca128 ===
+    PCA-denoise ChemBERTa 384 -> 128 dims (gentler denoise).
+  ndcg@k_e 0.2651±0.021  gw_pair 0.5700  hit@5 0.1022  spearman +0.1378  | ens ndcg@k_e 0.2740 gw_pair 0.5754
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2651 ± 0.021   (baseline 0.2706, best 0.2706)
+  Δ vs baseline : -0.0055   Δ vs best : -0.0055
+  gw_pair 0.5700  spearman 0.1378  hit@5 0.102
+================================================================
+
+LEADERBOARD (3 run, primary=pooled ndcg@k_e):
+   1. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   2. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   3. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+
+PENDING (18): no_molgpka, molgpka_pca16, molgpka_pca32, no_chemberta, cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: no_molgpka ===
+    Ablate the MolGpKa charge-embedding block. Tests whether it transfers OOD or overfits (the tox investigation found MolGpKa-64 OVERFIT the OOD tox signal -- does delivery too?).
+  ndcg@k_e 0.2752±0.012  gw_pair 0.5655  hit@5 0.1044  spearman +0.1236  | ens ndcg@k_e 0.2726 gw_pair 0.5710
+
+================================================================
+  VERDICT: NEW BEST
+  pooled ndcg@k_e : 0.2752 ± 0.012   (baseline 0.2706, best 0.2706)
+  Δ vs baseline : 0.0046   Δ vs best : 0.0046
+  gw_pair 0.5655  spearman 0.1236  hit@5 0.104
+================================================================
+
+LEADERBOARD (4 run, primary=pooled ndcg@k_e):
+   1. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   2. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   3. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   4. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+
+PENDING (17): molgpka_pca16, molgpka_pca32, no_chemberta, cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: molgpka_pca16 ===
+    MolGpKa PCA 64 -> 16. The tox champion win. Fewer charge-embedding dims = less OOD overfitting; does the same regularization help delivery ranking?
+  ndcg@k_e 0.2631±0.006  gw_pair 0.5741  hit@5 0.1022  spearman +0.1261  | ens ndcg@k_e 0.2720 gw_pair 0.5793
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2631 ± 0.006   (baseline 0.2706, best 0.2752)
+  Δ vs baseline : -0.0075   Δ vs best : -0.0121
+  gw_pair 0.5741  spearman 0.1261  hit@5 0.102
+================================================================
+
+LEADERBOARD (5 run, primary=pooled ndcg@k_e):
+   1. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   2. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   3. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   4. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   5. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+
+PENDING (16): molgpka_pca32, no_chemberta, cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: molgpka_pca32 ===
+    MolGpKa PCA 64 -> 32 (middle ground between the champion-16 and production-64).
+  ndcg@k_e 0.2789±0.018  gw_pair 0.5802  hit@5 0.1200  spearman +0.1450  | ens ndcg@k_e 0.2936 gw_pair 0.5873
+
+================================================================
+  VERDICT: NEW BEST
+  pooled ndcg@k_e : 0.2789 ± 0.018   (baseline 0.2706, best 0.2752)
+  Δ vs baseline : 0.0083   Δ vs best : 0.0038
+  gw_pair 0.5802  spearman 0.1450  hit@5 0.120
+================================================================
+
+LEADERBOARD (6 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   3. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   4. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   5. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   6. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+
+PENDING (15): no_chemberta, cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+
+=== running: no_chemberta ===
+    Ablate ChemBERTa: handcrafted + MolGpKa only. Quantifies the transformer's OOD contribution over tabular+charge features (tox found ChemBERTa added ~nothing OOD).
+  ndcg@k_e 0.2425±0.005  gw_pair 0.5873  hit@5 0.0644  spearman +0.1493  | ens ndcg@k_e 0.2467 gw_pair 0.5960
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2425 ± 0.005   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : -0.0281   Δ vs best : -0.0364
+  gw_pair 0.5873  spearman 0.1493  hit@5 0.064
+================================================================
+
+LEADERBOARD (7 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   3. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   4. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   5. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   6. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+   7. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (14): cbpca32, add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: cbpca32 ===
+    PCA-denoise ChemBERTa 384 -> 32 dims (very aggressive). Tests how far denoising helps before it starts destroying signal.
+  ndcg@k_e 0.2579±0.015  gw_pair 0.5736  hit@5 0.1022  spearman +0.1467  | ens ndcg@k_e 0.2686 gw_pair 0.5800
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2579 ± 0.015   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : -0.0127   Δ vs best : -0.0211
+  gw_pair 0.5736  spearman 0.1467  hit@5 0.102
+================================================================
+
+LEADERBOARD (8 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   3. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   4. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   5. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   6. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+   7. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+   8. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (13): add_chemotype, add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: add_chemotype ===
+    Add the 4 deterministic head-group one-hot flags (has_amine/guanidine/imidazole/quat).
+  ndcg@k_e 0.2760±0.014  gw_pair 0.5743  hit@5 0.1222  spearman +0.1386  | ens ndcg@k_e 0.2778 gw_pair 0.5788
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2760 ± 0.014   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : 0.0054   Δ vs best : -0.0029
+  gw_pair 0.5743  spearman 0.1386  hit@5 0.122
+================================================================
+
+LEADERBOARD (9 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   3. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   4. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   5. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   6. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   7. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+   8. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+   9. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (12): add_rdkit, add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: add_rdkit ===
+    Add the RDKit physicochemical descriptor block (logP/TPSA/HBD/HBA/rotbonds/...). Extra lipophilicity/shape descriptors on top of the handcrafted set.
+  ndcg@k_e 0.2779±0.006  gw_pair 0.5897  hit@5 0.1111  spearman +0.1561  | ens ndcg@k_e 0.3063 gw_pair 0.5979
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2779 ± 0.006   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : 0.0073   Δ vs best : -0.0010
+  gw_pair 0.5897  spearman 0.1561  hit@5 0.111
+================================================================
+
+LEADERBOARD (10 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   3. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   4. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   5. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   6. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   7. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   8. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+   9. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  10. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (11): add_morgan32, add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: add_morgan32 ===
+    Add a Morgan(r2,2048)->PCA32 fingerprint block. Orthogonal ECFP substructure signal the ChemBERTa/MolGpKa stack lacks.
+  ndcg@k_e 0.2740±0.012  gw_pair 0.5786  hit@5 0.1222  spearman +0.1408  | ens ndcg@k_e 0.2741 gw_pair 0.5838
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2740 ± 0.012   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : 0.0034   Δ vs best : -0.0049
+  gw_pair 0.5786  spearman 0.1408  hit@5 0.122
+================================================================
+
+LEADERBOARD (11 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   3. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   4. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   5. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   6. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   7. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   8. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+   9. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  10. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  11. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (10): add_maccs32, top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: add_maccs32 ===
+    Add a MACCS(167)->PCA32 structural-key block (curated substructure keys, distinct from ECFP).
+  ndcg@k_e 0.2668±0.010  gw_pair 0.5816  hit@5 0.1022  spearman +0.1391  | ens ndcg@k_e 0.2782 gw_pair 0.5862
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2668 ± 0.010   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : -0.0038   Δ vs best : -0.0121
+  gw_pair 0.5816  spearman 0.1391  hit@5 0.102
+================================================================
+
+LEADERBOARD (12 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   3. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   4. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   5. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   6. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   7. add_maccs32            ndcg@k_e 0.2668  gw_pair 0.5816  spearman 0.1391
+   8. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+   9. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+  10. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  11. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  12. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (9): top_frac0.15, top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: top_frac0.15 ===
+    Lower the hit-anchored pair fraction 0.25 -> 0.15. Less anchoring to the sparse hit set may generalize better OOD (over-anchoring collapsed folds historically).
+  ndcg@k_e 0.2661±0.004  gw_pair 0.5962  hit@5 0.0933  spearman +0.1510  | ens ndcg@k_e 0.2682 gw_pair 0.6027
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2661 ± 0.004   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : -0.0044   Δ vs best : -0.0128
+  gw_pair 0.5962  spearman 0.1510  hit@5 0.093
+================================================================
+
+LEADERBOARD (13 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   3. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   4. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   5. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   6. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   7. add_maccs32            ndcg@k_e 0.2668  gw_pair 0.5816  spearman 0.1391
+   8. top_frac0.15           ndcg@k_e 0.2661  gw_pair 0.5962  spearman 0.1510
+   9. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+  10. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+  11. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  12. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  13. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (8): top_frac0.40, budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: top_frac0.40 ===
+    Raise the hit-anchored pair fraction 0.25 -> 0.40 (more top-of-list emphasis).
+  ndcg@k_e 0.2686±0.009  gw_pair 0.5920  hit@5 0.1022  spearman +0.1466  | ens ndcg@k_e 0.2678 gw_pair 0.6004
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2686 ± 0.009   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : -0.0020   Δ vs best : -0.0103
+  gw_pair 0.5920  spearman 0.1466  hit@5 0.102
+================================================================
+
+LEADERBOARD (14 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   3. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   4. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   5. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   6. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   7. top_frac0.40           ndcg@k_e 0.2686  gw_pair 0.5920  spearman 0.1466
+   8. add_maccs32            ndcg@k_e 0.2668  gw_pair 0.5816  spearman 0.1391
+   9. top_frac0.15           ndcg@k_e 0.2661  gw_pair 0.5962  spearman 0.1510
+  10. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+  11. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+  12. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  13. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  14. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (7): budget_B3000, xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: budget_B3000 ===
+    Double the per-experiment pairwise budget 1500 -> 3000 (denser gradient signal).
+  ndcg@k_e 0.2675±0.016  gw_pair 0.5880  hit@5 0.1111  spearman +0.1449  | ens ndcg@k_e 0.2648 gw_pair 0.5932
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2675 ± 0.016   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : -0.0031   Δ vs best : -0.0115
+  gw_pair 0.5880  spearman 0.1449  hit@5 0.111
+================================================================
+
+LEADERBOARD (15 run, primary=pooled ndcg@k_e):
+   1. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   2. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   3. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   4. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   5. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   6. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   7. top_frac0.40           ndcg@k_e 0.2686  gw_pair 0.5920  spearman 0.1466
+   8. budget_B3000           ndcg@k_e 0.2675  gw_pair 0.5880  spearman 0.1449
+   9. add_maccs32            ndcg@k_e 0.2668  gw_pair 0.5816  spearman 0.1391
+  10. top_frac0.15           ndcg@k_e 0.2661  gw_pair 0.5962  spearman 0.1510
+  11. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+  12. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+  13. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  14. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  15. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (6): xgb_depth5, xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: xgb_depth5 ===
+    max_depth 6 -> 5. Gentle capacity reduction; the notes say reg 'hurts test', so this should confirm/deny that on the honest OOD metric rather than the leaky one.
+  ndcg@k_e 0.2798±0.006  gw_pair 0.5881  hit@5 0.1178  spearman +0.1580  | ens ndcg@k_e 0.2773 gw_pair 0.5963
+
+================================================================
+  VERDICT: NEW BEST
+  pooled ndcg@k_e : 0.2798 ± 0.006   (baseline 0.2706, best 0.2789)
+  Δ vs baseline : 0.0093   Δ vs best : 0.0009
+  gw_pair 0.5881  spearman 0.1580  hit@5 0.118
+================================================================
+
+LEADERBOARD (16 run, primary=pooled ndcg@k_e):
+   1. xgb_depth5             ndcg@k_e 0.2798  gw_pair 0.5881  spearman 0.1580
+   2. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   3. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   4. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   5. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   6. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   7. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   8. top_frac0.40           ndcg@k_e 0.2686  gw_pair 0.5920  spearman 0.1466
+   9. budget_B3000           ndcg@k_e 0.2675  gw_pair 0.5880  spearman 0.1449
+  10. add_maccs32            ndcg@k_e 0.2668  gw_pair 0.5816  spearman 0.1391
+  11. top_frac0.15           ndcg@k_e 0.2661  gw_pair 0.5962  spearman 0.1510
+  12. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+  13. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+  14. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  15. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  16. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (5): xgb_colsample_bynode0.5, smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.
+
+=== running: xgb_colsample_bynode0.5 ===
+    colsample_bynode=0.5 (per-split feature subsampling). Decorrelates trees; can help when a few features dominate and hurt OOD transfer.
+  ndcg@k_e 0.2692±0.014  gw_pair 0.5858  hit@5 0.1044  spearman +0.1536  | ens ndcg@k_e 0.2710 gw_pair 0.5936
+
+================================================================
+  VERDICT: no-improvement
+  pooled ndcg@k_e : 0.2692 ± 0.014   (baseline 0.2706, best 0.2798)
+  Δ vs baseline : -0.0014   Δ vs best : -0.0106
+  gw_pair 0.5858  spearman 0.1536  hit@5 0.104
+================================================================
+
+LEADERBOARD (17 run, primary=pooled ndcg@k_e):
+   1. xgb_depth5             ndcg@k_e 0.2798  gw_pair 0.5881  spearman 0.1580
+   2. molgpka_pca32          ndcg@k_e 0.2789  gw_pair 0.5802  spearman 0.1450
+   3. add_rdkit              ndcg@k_e 0.2779  gw_pair 0.5897  spearman 0.1561
+   4. add_chemotype          ndcg@k_e 0.2760  gw_pair 0.5743  spearman 0.1386
+   5. no_molgpka             ndcg@k_e 0.2752  gw_pair 0.5655  spearman 0.1236
+   6. add_morgan32           ndcg@k_e 0.2740  gw_pair 0.5786  spearman 0.1408
+   7. baseline               ndcg@k_e 0.2706  gw_pair 0.5907  spearman 0.1588
+   8. xgb_colsample_bynode0.5 ndcg@k_e 0.2692  gw_pair 0.5858  spearman 0.1536
+   9. top_frac0.40           ndcg@k_e 0.2686  gw_pair 0.5920  spearman 0.1466
+  10. budget_B3000           ndcg@k_e 0.2675  gw_pair 0.5880  spearman 0.1449
+  11. add_maccs32            ndcg@k_e 0.2668  gw_pair 0.5816  spearman 0.1391
+  12. top_frac0.15           ndcg@k_e 0.2661  gw_pair 0.5962  spearman 0.1510
+  13. cbpca128               ndcg@k_e 0.2651  gw_pair 0.5700  spearman 0.1378
+  14. molgpka_pca16          ndcg@k_e 0.2631  gw_pair 0.5741  spearman 0.1261
+  15. cbpca32                ndcg@k_e 0.2579  gw_pair 0.5736  spearman 0.1467
+  16. cbpca64                ndcg@k_e 0.2426  gw_pair 0.5882  spearman 0.1570
+  17. no_chemberta           ndcg@k_e 0.2425  gw_pair 0.5873  spearman 0.1493
+
+PENDING (4): smiles_aug2, smiles_aug2_tta, train_frac0.5, train_frac0.75
+Some weights of RobertaModel were not initialized from the model checkpoint at DeepChem/ChemBERTa-77M-MTR and are newly initialized: ['pooler.dense.bias', 'pooler.dense.weight']
+You should probably TRAIN this model on a down-stream task to be able to use it for predictions and inference.

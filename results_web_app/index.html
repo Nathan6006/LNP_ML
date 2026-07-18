@@ -1,0 +1,215 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>LNP Delivery Screen</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- RDKit WebAssembly: renders structures in the browser (no server) -->
+  <script src="vendor/RDKit_minimal.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="brand">
+      <span class="logo" aria-hidden="true">
+        <svg viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 3h6M10 3v6.5L5.2 17.4A2 2 0 0 0 7 20.5h10a2 2 0 0 0 1.8-3.1L14 9.5V3"/>
+          <path d="M7.8 14h8.4"/>
+        </svg>
+      </span>
+      <div class="brand-txt">
+        <span class="brand-name">LNP&nbsp;SCREEN</span>
+        <span class="brand-sub">Ionizable Lipid Delivery Screen</span>
+      </div>
+    </div>
+    <nav class="tabs" id="tabs">
+      <button class="tab active" data-view="candidates">Candidates</button>
+      <button class="tab" data-view="components">Components</button>
+      <button class="tab" data-view="chemotypes">Chemotypes</button>
+    </nav>
+    <div class="switch8" title="Include or exclude 8-tailed lipids from the scores">
+      <span class="switch8-label">8-tailed lipids</span>
+      <button type="button" id="tog8" class="switch8-track" role="switch" aria-checked="true" aria-label="Include 8-tailed lipids">
+        <span class="switch8-thumb"></span>
+      </button>
+      <span class="switch8-state" id="tog8-state">Included</span>
+    </div>
+    <div class="search-wrap">
+      <input id="search" type="search" placeholder="Search…" autocomplete="off">
+    </div>
+  </header>
+
+  <main>
+    <!-- Candidates view -->
+    <section id="view-candidates" class="view">
+      <div class="table-meta" id="tablemeta">Loading…</div>
+      <div class="table-scroll">
+        <table id="tbl">
+          <thead>
+            <tr>
+              <th class="num sortable" data-key="rank">Rank</th>
+              <th class="sortable" data-key="lipid_id">Lipid</th>
+              <th class="num sortable" data-key="score_mean">Percentile</th>
+              <th class="num sortable" data-key="score_std">Std</th>
+              <th class="num sortable" data-key="n_tails">Tails</th>
+            </tr>
+          </thead>
+          <tbody id="tbody"></tbody>
+        </table>
+        <p id="empty" class="empty" hidden>No matches.</p>
+      </div>
+    </section>
+
+    <!-- Components view -->
+    <section id="view-components" class="view" hidden>
+      <div class="table-meta" id="compmeta"></div>
+      <div class="table-scroll">
+        <table id="comp-tbl">
+          <thead>
+            <tr>
+              <th class="sortable" data-ckey="cls">Class</th>
+              <th class="sortable" data-ckey="abbrev">Group</th>
+              <th class="sortable" data-ckey="full_name">Name</th>
+              <th class="num sortable" data-ckey="n">n</th>
+              <th class="num sortable" data-ckey="avg_rank">Avg rank</th>
+              <th class="num sortable" data-ckey="std_rank">Std rank</th>
+              <th class="num sortable" data-ckey="avg_score">Avg score</th>
+              <th class="num sortable" data-ckey="std_score">Std score</th>
+              <th class="num sortable" data-ckey="top10_pct">% top 10%</th>
+            </tr>
+          </thead>
+          <tbody id="comp-tbody"></tbody>
+        </table>
+        <p id="comp-empty" class="empty" hidden>No matches.</p>
+      </div>
+    </section>
+
+    <!-- Chemotypes view -->
+    <section id="view-chemotypes" class="view" hidden>
+      <div class="table-meta" id="chemometa"></div>
+      <div id="chemo-accordions" class="accordions"></div>
+    </section>
+  </main>
+
+  <!-- Slide-out detail drawer -->
+  <div id="scrim" class="scrim" hidden></div>
+  <aside id="drawer" class="drawer" hidden aria-hidden="true">
+    <div class="drawer-head">
+      <div class="drawer-eyebrow"><span id="d-eyebrow"></span></div>
+      <button id="drawer-close" class="close" aria-label="Close">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M6 6l12 12M18 6L6 18"/></svg>
+      </button>
+    </div>
+    <h2 id="d-name" class="drawer-title"></h2>
+
+    <div class="drawer-body">
+     <div id="cand-body">
+      <!-- Hero: gauge + key facts -->
+      <div class="hero-card">
+        <div class="gauge">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle class="gauge-track" cx="60" cy="60" r="52" />
+            <circle id="gauge-arc" class="gauge-arc" cx="60" cy="60" r="52" transform="rotate(-90 60 60)" />
+          </svg>
+          <div class="gauge-center">
+            <span id="gauge-num" class="gauge-num">–</span>
+            <span class="gauge-lbl">percentile</span>
+          </div>
+        </div>
+        <div class="hero-facts">
+          <div class="fact"><span class="fact-k">Rank</span><span class="fact-v" id="h-rank"></span></div>
+          <div class="fact"><span class="fact-k">Std (folds)</span><span class="fact-v" id="h-std"></span></div>
+          <div class="fact wide"><span class="fact-k">Formula</span><span class="fact-v mono" id="h-formula"></span></div>
+        </div>
+      </div>
+
+      <section class="sect">
+        <h3>Structure</h3>
+        <div class="struct-tile">
+          <div id="struct-svg" class="struct-svg"></div>
+          <div id="struct-loading" class="struct-loading">Rendering structure…</div>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>SMILES</h3>
+        <div class="smiles-box">
+          <code id="d-smiles"></code>
+          <button id="copy-smiles" class="copy-btn">Copy</button>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>Composition <span class="sect-note">rank within group type</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Starter</span><span class="v mono" id="p-starter"></span><span class="rank-badge" id="p-starter-rank"></span></div>
+          <div class="cell"><span class="k">Head</span><span class="v mono" id="p-head"></span><span class="rank-badge" id="p-head-rank"></span></div>
+          <div class="cell"><span class="k">Linker</span><span class="v mono" id="p-linker"></span><span class="rank-badge" id="p-linker-rank"></span></div>
+          <div class="cell"><span class="k">Tail</span><span class="v mono" id="p-tail"></span><span class="rank-badge" id="p-tail-rank"></span></div>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>Structural features</h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Tails</span><span class="v" id="s-tails"></span></div>
+          <div class="cell"><span class="k">Carbons / tail</span><span class="v" id="s-carbons"></span></div>
+          <div class="cell"><span class="k">C=C bonds</span><span class="v" id="s-cc"></span></div>
+          <div class="cell"><span class="k">Protonatable N</span><span class="v" id="s-pn"></span></div>
+          <div class="cell"><span class="k">Mol. weight</span><span class="v" id="s-molwt"></span><span class="k sub">g/mol</span></div>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>Screening condition <span class="sect-note">held constant</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Helper lipid</span><span class="v" id="c-helper"></span></div>
+          <div class="cell"><span class="k">Cell line</span><span class="v" id="c-cell"></span></div>
+          <div class="cell"><span class="k">Molar ratio</span><span class="v mono" id="c-ratio"></span><span class="k sub" id="c-ratio-lbl"></span></div>
+          <div class="cell"><span class="k">Cargo</span><span class="v" id="c-cargo"></span></div>
+          <div class="cell"><span class="k">Lipid : nucleic acid</span><span class="v mono" id="c-ratio2"></span></div>
+          <div class="cell"><span class="k">Dose</span><span class="v" id="c-dose"></span></div>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>Per-fold percentile</h3>
+        <div id="d-folds" class="folds"></div>
+      </section>
+     </div><!-- /cand-body -->
+
+     <div id="comp-body" hidden>
+      <div class="hero-card">
+        <div class="hero-facts comp-facts">
+          <div class="fact wide"><span class="fact-k">Full name</span><span class="fact-v" id="cf-name"></span></div>
+          <div class="fact"><span class="fact-k">Avg score</span><span class="fact-v" id="cf-avgscore"></span></div>
+          <div class="fact"><span class="fact-k">Std score</span><span class="fact-v" id="cf-stdscore"></span></div>
+          <div class="fact"><span class="fact-k">Avg rank</span><span class="fact-v" id="cf-avgrank"></span></div>
+          <div class="fact"><span class="fact-k">Std rank</span><span class="fact-v" id="cf-stdrank"></span></div>
+          <div class="fact"><span class="fact-k">% in top 10%</span><span class="fact-v" id="cf-top10"></span></div>
+          <div class="fact"><span class="fact-k">Candidates</span><span class="fact-v" id="cf-n"></span></div>
+        </div>
+      </div>
+
+      <section class="sect">
+        <h3>Structure</h3>
+        <div class="struct-tile">
+          <div id="comp-struct-svg" class="struct-svg"></div>
+          <div id="comp-struct-loading" class="struct-loading">Rendering structure…</div>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>SMILES</h3>
+        <div class="smiles-box">
+          <code id="cf-smiles"></code>
+          <button id="comp-copy-smiles" class="copy-btn">Copy</button>
+        </div>
+      </section>
+     </div><!-- /comp-body -->
+    </div>
+  </aside>
+
+  <script src="app.js"></script>
+</body>
+</html>

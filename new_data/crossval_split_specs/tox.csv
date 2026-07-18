@@ -1,0 +1,12 @@
+Experiment,Train_or_split,Experiment_weight
+Xue_CAD_LNP,split,1.0
+Yu_Aminoglycoside,split,1.0
+Lee_unsat,split,1.0
+Zhang_Aminoglycoside,split,1.0
+Farbiak_Dendrimer_HeLa,split_context,1.0
+Farbiak_Dendrimer_igrov1,split_context,1.0
+Han_amidine,split,1.0
+Han_branched,split_context,1.0
+Han_a3,split,1.0
+Lin_peptide,split,1.0
+Liu_iphos,split,1.0

@@ -1,0 +1,10 @@
+{
+  "generated_utc": "2026-07-12T03:24:44.828583+00:00",
+  "fragments_csv": "components.csv",
+  "n_molecules": 360640,
+  "n_unique_smiles": 360640,
+  "exclusion_applied": null,
+  "n_excluded": 0,
+  "charge_convention": "bases neutral; carboxylates deprotonated; quaternary N kept +1 (matches LNPDB IL_SMILES)",
+  "assembly_time_s": 262.8
+}

@@ -120,7 +120,7 @@ def check_leakage_and_export(split_root_path, all_data_path, metadata_col='Lipid
 def main(argv):
     split = argv[1] 
     split_folder = f'../data/crossval_splits/{split}'
-    all_data = '../data/all_data.csv'
+    all_data = '../data/all_tox.csv'
 
     check_leakage_and_export(split_folder, all_data)
 

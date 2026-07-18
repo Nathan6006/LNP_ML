@@ -1,0 +1,26 @@
+{
+  "analysis": "publication_sanity_checks",
+  "data": "/Users/nathanliu/Downloads/LNP_ML/data/all_del.csv",
+  "outputs": [
+    "publication_counts_and_raw_target_summary.csv",
+    "raw_log_rlu_boxplot.png",
+    "median_tanimoto_matrix.csv",
+    "median_tanimoto_pairs.csv",
+    "median_tanimoto_heatmap.png"
+  ],
+  "spec_assignments": [
+    "split"
+  ],
+  "split_spec": "/Users/nathanliu/Downloads/LNP_ML/data/crossval_split_specs/del.csv",
+  "tanimoto": {
+    "fingerprint": {
+      "n_bits": 2048,
+      "radius": 2,
+      "type": "Morgan"
+    },
+    "max_pairs_per_cell": 2000000,
+    "sampled_cells": 1,
+    "uses_all_rows": false
+  },
+  "target_col": "unnormalized_delivery"
+}

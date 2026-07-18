@@ -1,0 +1,38 @@
+# DUET-LNP toxicity (lnpcd_tox_deploy_B) — VALIDATION metrics, 5-fold cluster-disjoint (regression on viability)
+# NOTE: fold(s) with best_iteration==0 are DEAD and are EXCLUDED from the deployment ensemble (see results/tox_dead_folds.csv).
+# Per-fold
+cv_fold,best_iteration,status,n,rmse,mae,r2,spearman,pearson,n_toxic,toxic_frac,roc_auc,pr_auc,precision,recall,f1
+0,0,DEAD (excluded at screen),228,0.1482,0.078,0.2439,0.6817,0.5,35,0.1535,0.8807,0.433,0.5,0.4,0.4444
+1,2,used,228,0.1483,0.1047,-0.3667,0.1191,0.0319,25,0.1096,0.6539,0.149,0.0,0.0,0.0
+2,7,used,228,0.0662,0.0493,0.4326,0.6544,0.8322,24,0.1053,0.9849,0.866,0.6053,0.9583,0.7419
+3,88,used,502,0.0579,0.0234,0.2154,0.0629,0.4916,11,0.0219,0.9309,0.8087,1.0,0.4545,0.625
+4,4,used,227,0.0752,0.0547,-0.0414,0.1413,0.3709,11,0.0485,0.9238,0.2878,0.25,0.0909,0.1333
+
+# Pooled across folds
+metric,mean,std
+rmse,0.09916,0.04047
+mae,0.06201,0.0275
+r2,0.09677,0.27654
+spearman,0.33189,0.27579
+pearson,0.44533,0.2574
+toxic_frac,0.08776,0.04688
+roc_auc,0.87484,0.11533
+pr_auc,0.50892,0.28341
+precision,0.47105,0.33746
+recall,0.38076,0.33716
+f1,0.38894,0.28285
+
+# Within-experiment chemistry scorecard (conditions fixed within a study)
+Experiment_ID,n,n_toxic,spearman,pairwise_acc,pr_auc,roc_auc,base_rate
+Farbiak_Dendrimer_HeLa,36,17,0.8685,0.8473,0.9623,0.9628,0.4722
+Farbiak_Dendrimer_igrov1,36,8,0.8392,0.8432,0.7874,0.9241,0.2222
+Han_a3,90,0,0.0877,0.5309,,,
+Han_amidine,100,0,0.0664,0.5268,,,
+Han_branched,93,33,0.7979,0.7899,0.8277,0.8975,0.3548
+Lee_unsat,89,0,0.3454,0.6357,,,
+Lin_peptide,75,35,-0.0257,0.4908,0.4372,0.4429,0.4667
+Liu_iphos,572,0,-0.0931,0.3794,,,
+Miller_zwitter,69,0,-0.0721,0.4686,,,
+Xue_CAD_LNP,180,0,0.0844,0.5329,,,
+Yu_Aminoglycoside,44,2,0.1818,0.6182,0.119,0.7024,0.0455
+Zhang_Aminoglycoside,29,11,-0.6145,0.2657,0.2454,0.0758,0.3793

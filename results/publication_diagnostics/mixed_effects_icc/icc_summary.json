@@ -1,0 +1,72 @@
+{
+  "analysis": "mixed_effects_icc_raw_and_z",
+  "data": "/Users/nathanliu/Downloads/LNP_ML/data/all_del.csv",
+  "data_summary": {
+    "experiment_counts": {
+      "AGILE": 1100,
+      "COMET_LANCE": 1978,
+      "Lee_unsat": 89,
+      "Li_pulmonary": 680,
+      "Liu_iphos": 572,
+      "Whitehead_siRNA": 1150,
+      "Zhou_dendrimer": 1502
+    },
+    "n_experiments": 7,
+    "n_rows": 7071
+  },
+  "engine_requested": "statsmodels",
+  "formula": "target ~ C(helper_lipid) + C(cell_line) + C(cargo) + (1 | Experiment_ID)",
+  "interpretation": "Raw log-RLU ICC <= 0.4: publication random intercepts are not the dominant residual variance source under this fixed-effect formula. The z-scored ICC is 0.0000, which is the normalization sanity check.",
+  "spec_assignments": [
+    "split"
+  ],
+  "split_spec": "/Users/nathanliu/Downloads/LNP_ML/data/crossval_split_specs/del.csv",
+  "targets": {
+    "raw_log_rlu": {
+      "adjusted_icc": {
+        "converged": true,
+        "engine": "statsmodels",
+        "fit_method": "lbfgs",
+        "icc": 0.06290327028851153,
+        "log_likelihood": -7018.515308920771,
+        "random_intercept_variance": 0.028464956440422778,
+        "residual_variance": 0.4240545438950238
+      },
+      "headline_for_publication_shift": true,
+      "n_model_rows": 7071,
+      "null_icc": {
+        "converged": true,
+        "engine": "statsmodels",
+        "fit_method": "lbfgs",
+        "icc": 0.8646968206564568,
+        "log_likelihood": -7061.278442914998,
+        "random_intercept_variance": 2.734957909653529,
+        "residual_variance": 0.4279517302561164
+      },
+      "target_col": "unnormalized_delivery"
+    },
+    "z_scored": {
+      "adjusted_icc": {
+        "converged": true,
+        "engine": "statsmodels",
+        "fit_method": "lbfgs",
+        "icc": 1.27762520499405e-08,
+        "log_likelihood": -9772.626605689049,
+        "random_intercept_variance": 1.182350146837654e-08,
+        "residual_variance": 0.9254279949315469
+      },
+      "headline_for_publication_shift": false,
+      "n_model_rows": 7071,
+      "null_icc": {
+        "converged": false,
+        "engine": "statsmodels",
+        "fit_method": "lbfgs",
+        "icc": 1.2799189420007942e-05,
+        "log_likelihood": -10033.363651505584,
+        "random_intercept_variance": 1.2788495523024411e-05,
+        "residual_variance": 0.9991516978924342
+      },
+      "target_col": "quantified_delivery"
+    }
+  }
+}

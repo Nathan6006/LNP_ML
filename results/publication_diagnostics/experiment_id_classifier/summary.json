@@ -1,0 +1,140 @@
+{
+  "analysis": "experiment_id_from_morgan_classifiers",
+  "cv_mode": "stratified",
+  "data": "/Users/nathanliu/Downloads/LNP_ML/data/all_del.csv",
+  "data_summary": {
+    "experiment_counts": {
+      "AGILE": 1100,
+      "COMET_LANCE": 1978,
+      "Lee_unsat": 89,
+      "Li_pulmonary": 680,
+      "Liu_iphos": 572,
+      "Whitehead_siRNA": 1150,
+      "Zhou_dendrimer": 1502
+    },
+    "n_experiments": 7,
+    "n_rows": 7071
+  },
+  "fingerprint": {
+    "n_bits": 2048,
+    "radius": 2,
+    "type": "Morgan"
+  },
+  "model_summaries": {
+    "logistic": {
+      "balanced_accuracy": 0.9891092240843135,
+      "interpretation": "top-1 > 0.9: chemistry strongly identifies publication; the selected publications look scaffold-separated enough that cross-publication transfer is likely assay/source-confounded.",
+      "lowest_recall_publications": [
+        {
+          "Experiment_ID": "Lee_unsat",
+          "f1_score": 0.7692307692307693,
+          "model": "logistic",
+          "precision": 0.6439393939393939,
+          "recall": 0.9550561797752809,
+          "support": 89
+        },
+        {
+          "Experiment_ID": "Zhou_dendrimer",
+          "f1_score": 0.9827760891590679,
+          "model": "logistic",
+          "precision": 0.9972583961617546,
+          "recall": 0.9687083888149135,
+          "support": 1502
+        },
+        {
+          "Experiment_ID": "COMET_LANCE",
+          "f1_score": 1.0,
+          "model": "logistic",
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 1978
+        }
+      ],
+      "macro_f1": 0.9645724083414053,
+      "model": "logistic",
+      "top1_accuracy": 0.9927874416631312,
+      "top2_accuracy_mean": 1.0,
+      "top3_accuracy_mean": 1.0,
+      "top_confusions": [
+        {
+          "actual": "Zhou_dendrimer",
+          "actual_error_share": 0.031291611185086554,
+          "actual_support": 1502,
+          "count": 47,
+          "predicted": "Lee_unsat"
+        },
+        {
+          "actual": "Lee_unsat",
+          "actual_error_share": 0.0449438202247191,
+          "actual_support": 89,
+          "count": 4,
+          "predicted": "Zhou_dendrimer"
+        }
+      ]
+    },
+    "rf": {
+      "balanced_accuracy": 0.9787292705499142,
+      "interpretation": "top-1 > 0.9: chemistry strongly identifies publication; the selected publications look scaffold-separated enough that cross-publication transfer is likely assay/source-confounded.",
+      "lowest_recall_publications": [
+        {
+          "Experiment_ID": "Lee_unsat",
+          "f1_score": 0.7609756097560976,
+          "model": "rf",
+          "precision": 0.6724137931034483,
+          "recall": 0.8764044943820225,
+          "support": 89
+        },
+        {
+          "Experiment_ID": "Zhou_dendrimer",
+          "f1_score": 0.9835404769902586,
+          "model": "rf",
+          "precision": 0.9925423728813559,
+          "recall": 0.9747003994673769,
+          "support": 1502
+        },
+        {
+          "Experiment_ID": "COMET_LANCE",
+          "f1_score": 1.0,
+          "model": "rf",
+          "precision": 1.0,
+          "recall": 1.0,
+          "support": 1978
+        }
+      ],
+      "macro_f1": 0.9635022981066222,
+      "model": "rf",
+      "top1_accuracy": 0.9930702870881063,
+      "top2_accuracy_mean": 1.0,
+      "top3_accuracy_mean": 1.0,
+      "top_confusions": [
+        {
+          "actual": "Zhou_dendrimer",
+          "actual_error_share": 0.02529960053262317,
+          "actual_support": 1502,
+          "count": 38,
+          "predicted": "Lee_unsat"
+        },
+        {
+          "actual": "Lee_unsat",
+          "actual_error_share": 0.12359550561797752,
+          "actual_support": 89,
+          "count": 11,
+          "predicted": "Zhou_dendrimer"
+        }
+      ]
+    },
+    "rf_vs_logistic": {
+      "macro_f1_delta": -0.0010701102347830949,
+      "note": "A large RF-over-logistic gap suggests nonlinear chemistry-publication structure that a neural encoder could also exploit.",
+      "top1_delta": 0.0002828454249751422
+    }
+  },
+  "models": [
+    "logistic",
+    "rf"
+  ],
+  "spec_assignments": [
+    "split"
+  ],
+  "split_spec": "/Users/nathanliu/Downloads/LNP_ML/data/crossval_split_specs/del.csv"
+}
