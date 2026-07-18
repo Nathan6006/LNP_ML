@@ -24,7 +24,7 @@ from rdkit.Chem import DataStructs
 from rdkit.Chem import rdFingerprintGenerator
 import umap
 
-DATA_PATH = '../data/all_data.csv'
+DATA_PATH = '../data/all_tox.csv'
 SMILES_COL = 'smiles'       
 TARGET_COL = 'toxicity_class'
 OUTPUT_DIR = '../testing/scaffold_diagnostics'

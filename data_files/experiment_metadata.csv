@@ -9,6 +9,7 @@ Han_amidine,mRNA,HepG2,1.0
 Han_branched,mRNA,HepG2,0.33
 Han_a3,mRNA,HepG2,1.0
 Lin_peptide,mRNA,MDA_MB,1.0
+Miller_zwitter,mRNA,HeLa,1.0
 Liu_iphos,mRNA,IGROV1,0.5
 AGILE,mRNA,HeLa,1.0
 Li_pulmonary,mRNA,A549,1.0
@@ -16,3 +17,4 @@ Miao_3CR,mRNA,HeLa,1.0
 Li_3CR,mRNA,HeLa,1.0
 Whitehead_siRNA,siRNA,HeLa,1.0
 Zhou_dendrimer,siRNA,HeLa,0.5
+COMET_LANCE,mRNA,DC2.4,0.1

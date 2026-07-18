@@ -1,0 +1,3 @@
+set,n_considered,n_admissible,n_excluded,admissible_frac
+eho,11,11,0,1.0
+test,114,39,75,0.3421

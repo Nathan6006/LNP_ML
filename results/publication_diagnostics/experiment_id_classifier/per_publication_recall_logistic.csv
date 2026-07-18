@@ -1,0 +1,8 @@
+model,Experiment_ID,precision,recall,f1_score,support
+logistic,AGILE,1.0,1.0,1.0,1100
+logistic,COMET_LANCE,1.0,1.0,1.0,1978
+logistic,Lee_unsat,0.6439393939393939,0.9550561797752809,0.7692307692307693,89
+logistic,Li_pulmonary,1.0,1.0,1.0,680
+logistic,Liu_iphos,1.0,1.0,1.0,572
+logistic,Whitehead_siRNA,1.0,1.0,1.0,1150
+logistic,Zhou_dendrimer,0.9972583961617546,0.9687083888149135,0.9827760891590679,1502

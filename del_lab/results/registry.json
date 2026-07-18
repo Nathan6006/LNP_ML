@@ -1,0 +1,999 @@
+{
+  "baseline": {
+    "metrics": {
+      "ndcg@k_e": 0.27059089053453883,
+      "ndcg@k_e_std": 0.019807091351729224,
+      "ndcg@5": 0.2323433624086549,
+      "ndcg@5_std": 0.018382618265413722,
+      "hit_rate@5": 0.10666666666666669,
+      "hit_rate@5_std": 0.016329931618554526,
+      "ndcg@10": 0.2372775509380689,
+      "ndcg@10_std": 0.0219938666935268,
+      "hit_rate@10": 0.09000000000000002,
+      "hit_rate@10_std": 0.0178470871157878,
+      "gw_pair": 0.5907285645423898,
+      "gw_pair_std": 0.002003788446414157,
+      "spearman": 0.15877582980456148,
+      "spearman_std": 0.013326036926876672,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.26609691560796855,
+      "ens_gw_pair": 0.5973915097870162
+    },
+    "best_iters": [
+      [
+        481,
+        633,
+        556,
+        660
+      ],
+      [
+        399,
+        594,
+        824,
+        948
+      ],
+      [
+        708,
+        380,
+        468,
+        507
+      ]
+    ],
+    "config": {
+      "name": "baseline",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "objective": "lambdarank",
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Production delivery model: ChemBERTa-MTR + handcrafted + MolGpKa(mean,PCA64), within-exp LambdaRank (beta1,B1500,top_frac0.25), XGB_PARAMS. The number to beat.",
+    "timestamp": "2026-07-17T14:00:02"
+  },
+  "cbpca64": {
+    "metrics": {
+      "ndcg@k_e": 0.24260355893122232,
+      "ndcg@k_e_std": 0.017058768611700227,
+      "ndcg@5": 0.19804471900387896,
+      "ndcg@5_std": 0.017096472143957032,
+      "hit_rate@5": 0.08666666666666667,
+      "hit_rate@5_std": 0.014401645996461918,
+      "ndcg@10": 0.20043602224748017,
+      "ndcg@10_std": 0.016919985710073637,
+      "hit_rate@10": 0.06555555555555558,
+      "hit_rate@10_std": 0.007856742013183862,
+      "gw_pair": 0.5881879417165126,
+      "gw_pair_std": 0.005224470012323336,
+      "spearman": 0.15695216936649395,
+      "spearman_std": 0.01098243988178021,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.24055458598594004,
+      "ens_gw_pair": 0.5940466579477977
+    },
+    "best_iters": [
+      [
+        311,
+        849,
+        391,
+        1041
+      ],
+      [
+        771,
+        758,
+        407,
+        783
+      ],
+      [
+        705,
+        481,
+        502,
+        1001
+      ]
+    ],
+    "config": {
+      "name": "cbpca64",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "chemberta_pca": 64
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "PCA-denoise ChemBERTa 384 -> 64 dims (train-fit). Was NEW BEST on the prior protocol (+0.019). Re-confirm first on the 4-fold/22%-eho protocol.",
+    "timestamp": "2026-07-17T14:02:41"
+  },
+  "cbpca128": {
+    "metrics": {
+      "ndcg@k_e": 0.26505179296808407,
+      "ndcg@k_e_std": 0.020951873166059256,
+      "ndcg@5": 0.2367590773773441,
+      "ndcg@5_std": 0.026735015677681096,
+      "hit_rate@5": 0.10222222222222221,
+      "hit_rate@5_std": 0.02060804110110157,
+      "ndcg@10": 0.2339688088947908,
+      "ndcg@10_std": 0.02479727520083126,
+      "hit_rate@10": 0.08444444444444445,
+      "hit_rate@10_std": 0.01498970840359116,
+      "gw_pair": 0.5699579730705407,
+      "gw_pair_std": 0.0020579373204469976,
+      "spearman": 0.13780020517461725,
+      "spearman_std": 0.018847316346849382,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2739773712354881,
+      "ens_gw_pair": 0.5753973627420901
+    },
+    "best_iters": [
+      [
+        954,
+        707,
+        456,
+        1024
+      ],
+      [
+        1057,
+        393,
+        794,
+        820
+      ],
+      [
+        1149,
+        662,
+        977,
+        888
+      ]
+    ],
+    "config": {
+      "name": "cbpca128",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "chemberta_pca": 128
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "PCA-denoise ChemBERTa 384 -> 128 dims (gentler denoise).",
+    "timestamp": "2026-07-17T14:06:05"
+  },
+  "no_molgpka": {
+    "metrics": {
+      "ndcg@k_e": 0.27515564328840614,
+      "ndcg@k_e_std": 0.01217219432594754,
+      "ndcg@5": 0.22630245509105618,
+      "ndcg@5_std": 0.013257216971184054,
+      "hit_rate@5": 0.10444444444444445,
+      "hit_rate@5_std": 0.01662958838566197,
+      "ndcg@10": 0.2421876484500489,
+      "ndcg@10_std": 0.009821983051629879,
+      "hit_rate@10": 0.09333333333333334,
+      "hit_rate@10_std": 0.009813067629253172,
+      "gw_pair": 0.5654757449557496,
+      "gw_pair_std": 0.015297609153249268,
+      "spearman": 0.12362133388176538,
+      "spearman_std": 0.003767003002605346,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2725896276410202,
+      "ens_gw_pair": 0.5709503681522454
+    },
+    "best_iters": [
+      [
+        635,
+        579,
+        932,
+        1101
+      ],
+      [
+        818,
+        517,
+        740,
+        749
+      ],
+      [
+        593,
+        630,
+        849,
+        787
+      ]
+    ],
+    "config": {
+      "name": "no_molgpka",
+      "features": {
+        "chemberta": true,
+        "molgpka": false,
+        "handcrafted": true
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Ablate the MolGpKa charge-embedding block. Tests whether it transfers OOD or overfits (the tox investigation found MolGpKa-64 OVERFIT the OOD tox signal -- does delivery too?).",
+    "timestamp": "2026-07-17T14:10:09"
+  },
+  "molgpka_pca16": {
+    "metrics": {
+      "ndcg@k_e": 0.26307296046683065,
+      "ndcg@k_e_std": 0.00570297507141003,
+      "ndcg@5": 0.2267868914518233,
+      "ndcg@5_std": 0.013765232897711704,
+      "hit_rate@5": 0.10222222222222223,
+      "hit_rate@5_std": 0.012570787221094197,
+      "ndcg@10": 0.2328022026909459,
+      "ndcg@10_std": 0.003067201220026766,
+      "hit_rate@10": 0.0888888888888889,
+      "hit_rate@10_std": 0.006849348892187751,
+      "gw_pair": 0.5740582031168909,
+      "gw_pair_std": 0.005887073977933861,
+      "spearman": 0.12611530270643326,
+      "spearman_std": 0.0003708324034478384,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.27198179063829525,
+      "ens_gw_pair": 0.5792830015763669
+    },
+    "best_iters": [
+      [
+        571,
+        568,
+        523,
+        671
+      ],
+      [
+        868,
+        445,
+        140,
+        916
+      ],
+      [
+        615,
+        410,
+        926,
+        804
+      ]
+    ],
+    "config": {
+      "name": "molgpka_pca16",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 16
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "MolGpKa PCA 64 -> 16. The tox champion win. Fewer charge-embedding dims = less OOD overfitting; does the same regularization help delivery ranking?",
+    "timestamp": "2026-07-17T14:14:02"
+  },
+  "molgpka_pca32": {
+    "metrics": {
+      "ndcg@k_e": 0.2789354819581954,
+      "ndcg@k_e_std": 0.01814845011698877,
+      "ndcg@5": 0.24240143868119937,
+      "ndcg@5_std": 0.011461477177215604,
+      "hit_rate@5": 0.12000000000000001,
+      "hit_rate@5_std": 0.005443310539518158,
+      "ndcg@10": 0.25072517281830603,
+      "ndcg@10_std": 0.01364335039915883,
+      "hit_rate@10": 0.10555555555555556,
+      "hit_rate@10_std": 0.004157397096415487,
+      "gw_pair": 0.5802346400400253,
+      "gw_pair_std": 0.004826404047489045,
+      "spearman": 0.1450470532116868,
+      "spearman_std": 0.01674444595470512,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2935762279812298,
+      "ens_gw_pair": 0.5872843922531191
+    },
+    "best_iters": [
+      [
+        695,
+        522,
+        656,
+        529
+      ],
+      [
+        902,
+        430,
+        738,
+        1164
+      ],
+      [
+        717,
+        382,
+        479,
+        470
+      ]
+    ],
+    "config": {
+      "name": "molgpka_pca32",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 32
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "MolGpKa PCA 64 -> 32 (middle ground between the champion-16 and production-64).",
+    "timestamp": "2026-07-17T14:18:51"
+  },
+  "no_chemberta": {
+    "metrics": {
+      "ndcg@k_e": 0.24250563373580167,
+      "ndcg@k_e_std": 0.004915548264381206,
+      "ndcg@5": 0.18113250929860322,
+      "ndcg@5_std": 0.011615065209866483,
+      "hit_rate@5": 0.06444444444444446,
+      "hit_rate@5_std": 0.013698697784375503,
+      "ndcg@10": 0.19870806877156225,
+      "ndcg@10_std": 0.011893939215546913,
+      "hit_rate@10": 0.06444444444444446,
+      "hit_rate@10_std": 0.008314794192830979,
+      "gw_pair": 0.5873051514651147,
+      "gw_pair_std": 0.008615185018715688,
+      "spearman": 0.14933974823587012,
+      "spearman_std": 0.013878362085234382,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.24669019233967418,
+      "ens_gw_pair": 0.5960361141726187
+    },
+    "best_iters": [
+      [
+        935,
+        982,
+        460,
+        106
+      ],
+      [
+        1162,
+        596,
+        252,
+        1048
+      ],
+      [
+        607,
+        196,
+        267,
+        461
+      ]
+    ],
+    "config": {
+      "name": "no_chemberta",
+      "features": {
+        "chemberta": false,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Ablate ChemBERTa: handcrafted + MolGpKa only. Quantifies the transformer's OOD contribution over tabular+charge features (tox found ChemBERTa added ~nothing OOD).",
+    "timestamp": "2026-07-17T14:20:57"
+  },
+  "cbpca32": {
+    "metrics": {
+      "ndcg@k_e": 0.25785769964984384,
+      "ndcg@k_e_std": 0.014982004639757789,
+      "ndcg@5": 0.2303718702350106,
+      "ndcg@5_std": 0.014360409162662855,
+      "hit_rate@5": 0.10222222222222223,
+      "hit_rate@5_std": 0.01133115447465063,
+      "ndcg@10": 0.2298857014614307,
+      "ndcg@10_std": 0.02069314764755463,
+      "hit_rate@10": 0.0788888888888889,
+      "hit_rate@10_std": 0.015475986974649029,
+      "gw_pair": 0.5736332106254408,
+      "gw_pair_std": 0.0017902458798373954,
+      "spearman": 0.1467011461761759,
+      "spearman_std": 0.007609809962750334,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2686371926972889,
+      "ens_gw_pair": 0.5799643417682392
+    },
+    "best_iters": [
+      [
+        869,
+        1187,
+        603,
+        736
+      ],
+      [
+        592,
+        776,
+        1046,
+        804
+      ],
+      [
+        686,
+        620,
+        323,
+        810
+      ]
+    ],
+    "config": {
+      "name": "cbpca32",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "chemberta_pca": 32
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "PCA-denoise ChemBERTa 384 -> 32 dims (very aggressive). Tests how far denoising helps before it starts destroying signal.",
+    "timestamp": "2026-07-17T14:23:41"
+  },
+  "add_chemotype": {
+    "metrics": {
+      "ndcg@k_e": 0.27603460862216617,
+      "ndcg@k_e_std": 0.01413702213519886,
+      "ndcg@5": 0.245485005084617,
+      "ndcg@5_std": 0.014905972825099038,
+      "hit_rate@5": 0.12222222222222223,
+      "hit_rate@5_std": 0.008314794192830975,
+      "ndcg@10": 0.24747019882837776,
+      "ndcg@10_std": 0.016257140630468465,
+      "hit_rate@10": 0.09666666666666668,
+      "hit_rate@10_std": 0.017847087115787797,
+      "gw_pair": 0.5743346910619783,
+      "gw_pair_std": 0.009015144034794198,
+      "spearman": 0.13859572744547885,
+      "spearman_std": 0.011998256986921824,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2777792501680548,
+      "ens_gw_pair": 0.5788116341480276
+    },
+    "best_iters": [
+      [
+        616,
+        520,
+        833,
+        696
+      ],
+      [
+        418,
+        445,
+        431,
+        960
+      ],
+      [
+        738,
+        764,
+        638,
+        1068
+      ]
+    ],
+    "config": {
+      "name": "add_chemotype",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "chemotype": true
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Add the 4 deterministic head-group one-hot flags (has_amine/guanidine/imidazole/quat).",
+    "timestamp": "2026-07-17T14:28:22"
+  },
+  "add_rdkit": {
+    "metrics": {
+      "ndcg@k_e": 0.27792259519202994,
+      "ndcg@k_e_std": 0.006217713084655586,
+      "ndcg@5": 0.23720691083040335,
+      "ndcg@5_std": 0.011862333989561819,
+      "hit_rate@5": 0.11111111111111112,
+      "hit_rate@5_std": 0.01133115447465063,
+      "ndcg@10": 0.24237809683699474,
+      "ndcg@10_std": 0.0072985989541671905,
+      "hit_rate@10": 0.09444444444444446,
+      "hit_rate@10_std": 0.0031426968052735453,
+      "gw_pair": 0.5897485488072881,
+      "gw_pair_std": 0.00282098701779947,
+      "spearman": 0.1560737263866858,
+      "spearman_std": 0.00915331248073034,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.30629499275123595,
+      "ens_gw_pair": 0.5979290114939376
+    },
+    "best_iters": [
+      [
+        671,
+        696,
+        760,
+        610
+      ],
+      [
+        747,
+        821,
+        552,
+        719
+      ],
+      [
+        948,
+        429,
+        407,
+        819
+      ]
+    ],
+    "config": {
+      "name": "add_rdkit",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "rdkit": true
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Add the RDKit physicochemical descriptor block (logP/TPSA/HBD/HBA/rotbonds/...). Extra lipophilicity/shape descriptors on top of the handcrafted set.",
+    "timestamp": "2026-07-17T14:33:53"
+  },
+  "add_morgan32": {
+    "metrics": {
+      "ndcg@k_e": 0.27399306518962413,
+      "ndcg@k_e_std": 0.012095740358656246,
+      "ndcg@5": 0.2407448298387612,
+      "ndcg@5_std": 0.004116098080981697,
+      "hit_rate@5": 0.12222222222222223,
+      "hit_rate@5_std": 0.003142696805273542,
+      "ndcg@10": 0.2493907573604235,
+      "ndcg@10_std": 0.0101143437714588,
+      "hit_rate@10": 0.10666666666666669,
+      "hit_rate@10_std": 0.009813067629253165,
+      "gw_pair": 0.5785947099052485,
+      "gw_pair_std": 0.003213676726716677,
+      "spearman": 0.14083636112512893,
+      "spearman_std": 0.009696791421067505,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.27406241776528273,
+      "ens_gw_pair": 0.5838302688736947
+    },
+    "best_iters": [
+      [
+        589,
+        761,
+        346,
+        520
+      ],
+      [
+        937,
+        590,
+        570,
+        1118
+      ],
+      [
+        789,
+        348,
+        860,
+        1038
+      ]
+    ],
+    "config": {
+      "name": "add_morgan32",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "morgan": {
+          "bits": 2048,
+          "radius": 2,
+          "pca": 32
+        }
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Add a Morgan(r2,2048)->PCA32 fingerprint block. Orthogonal ECFP substructure signal the ChemBERTa/MolGpKa stack lacks.",
+    "timestamp": "2026-07-17T14:38:49"
+  },
+  "add_maccs32": {
+    "metrics": {
+      "ndcg@k_e": 0.26683949239047017,
+      "ndcg@k_e_std": 0.009968455338409241,
+      "ndcg@5": 0.22488130703872997,
+      "ndcg@5_std": 0.0013356918632435315,
+      "hit_rate@5": 0.10222222222222223,
+      "hit_rate@5_std": 0.01133115447465063,
+      "ndcg@10": 0.23527931351275835,
+      "ndcg@10_std": 0.004330126983824557,
+      "hit_rate@10": 0.09333333333333337,
+      "hit_rate@10_std": 0.004714045207910318,
+      "gw_pair": 0.5816212696981592,
+      "gw_pair_std": 0.003491840726040994,
+      "spearman": 0.139084836341449,
+      "spearman_std": 0.004632303644040308,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2781603279100468,
+      "ens_gw_pair": 0.586247669588002
+    },
+    "best_iters": [
+      [
+        521,
+        436,
+        627,
+        564
+      ],
+      [
+        844,
+        431,
+        824,
+        767
+      ],
+      [
+        440,
+        898,
+        80,
+        778
+      ]
+    ],
+    "config": {
+      "name": "add_maccs32",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64,
+        "maccs": {
+          "pca": 32
+        }
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Add a MACCS(167)->PCA32 structural-key block (curated substructure keys, distinct from ECFP).",
+    "timestamp": "2026-07-17T14:43:50"
+  },
+  "top_frac0.15": {
+    "metrics": {
+      "ndcg@k_e": 0.2661478924671838,
+      "ndcg@k_e_std": 0.003940237151569881,
+      "ndcg@5": 0.22140026283861372,
+      "ndcg@5_std": 0.003086359801567564,
+      "hit_rate@5": 0.09333333333333332,
+      "hit_rate@5_std": 8.012344526598183e-18,
+      "ndcg@10": 0.2357223120444308,
+      "ndcg@10_std": 0.0102898141448092,
+      "hit_rate@10": 0.0888888888888889,
+      "hit_rate@10_std": 0.008314794192830977,
+      "gw_pair": 0.5961805716248997,
+      "gw_pair_std": 0.008611402927610293,
+      "spearman": 0.15101543495007275,
+      "spearman_std": 0.006393277601445633,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2681936683992831,
+      "ens_gw_pair": 0.6026741102725532
+    },
+    "best_iters": [
+      [
+        1011,
+        284,
+        598,
+        613
+      ],
+      [
+        513,
+        327,
+        577,
+        522
+      ],
+      [
+        593,
+        497,
+        514,
+        991
+      ]
+    ],
+    "config": {
+      "name": "top_frac0.15",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "objective_params": {
+        "top_frac": 0.15
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Lower the hit-anchored pair fraction 0.25 -> 0.15. Less anchoring to the sparse hit set may generalize better OOD (over-anchoring collapsed folds historically).",
+    "timestamp": "2026-07-17T14:48:06"
+  },
+  "top_frac0.40": {
+    "metrics": {
+      "ndcg@k_e": 0.2686256345254791,
+      "ndcg@k_e_std": 0.008663663983973224,
+      "ndcg@5": 0.23414432371756252,
+      "ndcg@5_std": 0.003339768575415891,
+      "hit_rate@5": 0.10222222222222223,
+      "hit_rate@5_std": 0.008314794192830984,
+      "ndcg@10": 0.23342309744417877,
+      "ndcg@10_std": 0.005936543105157206,
+      "hit_rate@10": 0.08666666666666667,
+      "hit_rate@10_std": 0.0054433105395181635,
+      "gw_pair": 0.5920131122039217,
+      "gw_pair_std": 0.009202789753112357,
+      "spearman": 0.1466257961586087,
+      "spearman_std": 0.02084120593066921,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.26779058712502873,
+      "ens_gw_pair": 0.6003839787638975
+    },
+    "best_iters": [
+      [
+        682,
+        449,
+        125,
+        811
+      ],
+      [
+        783,
+        542,
+        717,
+        569
+      ],
+      [
+        640,
+        315,
+        421,
+        1139
+      ]
+    ],
+    "config": {
+      "name": "top_frac0.40",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "objective_params": {
+        "top_frac": 0.4
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Raise the hit-anchored pair fraction 0.25 -> 0.40 (more top-of-list emphasis).",
+    "timestamp": "2026-07-17T14:52:10"
+  },
+  "budget_B3000": {
+    "metrics": {
+      "ndcg@k_e": 0.2674576744639752,
+      "ndcg@k_e_std": 0.015743738498175265,
+      "ndcg@5": 0.21883085583089412,
+      "ndcg@5_std": 0.016549693121025673,
+      "hit_rate@5": 0.11111111111111112,
+      "hit_rate@5_std": 0.008314794192830977,
+      "ndcg@10": 0.22785119470092804,
+      "ndcg@10_std": 0.017028455417460626,
+      "hit_rate@10": 0.08777777777777779,
+      "hit_rate@10_std": 0.005665577237325314,
+      "gw_pair": 0.5880354376889397,
+      "gw_pair_std": 0.007264447671021176,
+      "spearman": 0.14488611275525431,
+      "spearman_std": 0.009336530463983188,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.26477020703940574,
+      "ens_gw_pair": 0.5932429050631718
+    },
+    "best_iters": [
+      [
+        482,
+        572,
+        722,
+        862
+      ],
+      [
+        877,
+        538,
+        398,
+        1161
+      ],
+      [
+        957,
+        816,
+        610,
+        917
+      ]
+    ],
+    "config": {
+      "name": "budget_B3000",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "objective_params": {
+        "budget_B": 3000
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "Double the per-experiment pairwise budget 1500 -> 3000 (denser gradient signal).",
+    "timestamp": "2026-07-17T14:57:07"
+  },
+  "xgb_depth5": {
+    "metrics": {
+      "ndcg@k_e": 0.27984490656373756,
+      "ndcg@k_e_std": 0.0060354346073648885,
+      "ndcg@5": 0.24255847067334765,
+      "ndcg@5_std": 0.01121531332635244,
+      "hit_rate@5": 0.11777777777777781,
+      "hit_rate@5_std": 0.013698697784375507,
+      "ndcg@10": 0.25501371505562687,
+      "ndcg@10_std": 0.010159372332912546,
+      "hit_rate@10": 0.10222222222222226,
+      "hit_rate@10_std": 0.016629588385661965,
+      "gw_pair": 0.5881155701517574,
+      "gw_pair_std": 0.008061041162361896,
+      "spearman": 0.15802909482087302,
+      "spearman_std": 0.010222655713152368,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2773446795548745,
+      "ens_gw_pair": 0.5963480737070106
+    },
+    "best_iters": [
+      [
+        692,
+        614,
+        110,
+        463
+      ],
+      [
+        942,
+        458,
+        718,
+        1199
+      ],
+      [
+        660,
+        369,
+        56,
+        784
+      ]
+    ],
+    "config": {
+      "name": "xgb_depth5",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "xgb": {
+        "max_depth": 5
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "max_depth 6 -> 5. Gentle capacity reduction; the notes say reg 'hurts test', so this should confirm/deny that on the honest OOD metric rather than the leaky one.",
+    "timestamp": "2026-07-17T15:00:28"
+  },
+  "xgb_colsample_bynode0.5": {
+    "metrics": {
+      "ndcg@k_e": 0.26922877790162586,
+      "ndcg@k_e_std": 0.013974974043586788,
+      "ndcg@5": 0.2310457861049183,
+      "ndcg@5_std": 0.02415665532983622,
+      "hit_rate@5": 0.10444444444444445,
+      "hit_rate@5_std": 0.02266230894930127,
+      "ndcg@10": 0.2361687909203325,
+      "ndcg@10_std": 0.01583375494704795,
+      "hit_rate@10": 0.09000000000000001,
+      "hit_rate@10_std": 0.011863420280034793,
+      "gw_pair": 0.5858476262412438,
+      "gw_pair_std": 0.0037933777536275906,
+      "spearman": 0.15363843752418493,
+      "spearman_std": 0.010595721822539353,
+      "n_seeds": 3,
+      "ens_ndcg@k_e": 0.2710046105039924,
+      "ens_gw_pair": 0.5936307119019418
+    },
+    "best_iters": [
+      [
+        665,
+        634,
+        603,
+        745
+      ],
+      [
+        575,
+        451,
+        799,
+        930
+      ],
+      [
+        469,
+        759,
+        726,
+        842
+      ]
+    ],
+    "config": {
+      "name": "xgb_colsample_bynode0.5",
+      "features": {
+        "chemberta": true,
+        "molgpka": true,
+        "handcrafted": true,
+        "molgpka_pca": 64
+      },
+      "xgb": {
+        "colsample_bynode": 0.5
+      },
+      "seeds": [
+        0,
+        1,
+        2
+      ]
+    },
+    "desc": "colsample_bynode=0.5 (per-split feature subsampling). Decorrelates trees; can help when a few features dominate and hurt OOD transfer.",
+    "timestamp": "2026-07-17T15:04:46"
+  }
+}

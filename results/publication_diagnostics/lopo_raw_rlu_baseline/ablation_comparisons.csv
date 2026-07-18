@@ -1,0 +1,4 @@
+model,comparison,higher_condition,lower_condition,weighted_spearman_delta,weighted_pearson_delta,note
+ridge,chemistry_lift,tabular_morgan_rdkit,tabular_only,0.023765305681065454,0.09199324072018233,tabular_morgan_rdkit is approximately tied with tabular_only on weighted Spearman.
+ridge,publication_one_hot_train_effect,tabular_morgan_rdkit_exp_zeroed,tabular_morgan_rdkit,-0.0013595417449851765,-0.0020298215380507856,tabular_morgan_rdkit_exp_zeroed is approximately tied with tabular_morgan_rdkit on weighted Spearman.
+ridge,full_vs_floor,tabular_morgan_rdkit_exp_zeroed,tabular_only,0.022405763936080278,0.08996341918213155,tabular_morgan_rdkit_exp_zeroed is approximately tied with tabular_only on weighted Spearman.

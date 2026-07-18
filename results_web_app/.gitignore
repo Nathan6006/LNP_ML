@@ -1,0 +1,3 @@
+__pycache__/
+*.pyc
+del_screen_scores_old.csv

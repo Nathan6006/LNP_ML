@@ -1,0 +1,18 @@
+# DUET-LNP delivery (del_deploy_B) — VALIDATION metrics, 5-fold rotating cluster-disjoint
+# Per-fold summary
+fold,best_iteration,status,valid_ndcg@k_e,valid_pairwise_acc,valid_spearman
+0,194,ok,0.4802,0.6283,0.2439
+1,170,ok,0.461,0.6411,0.3026
+2,412,ok,0.4892,0.6357,0.2685
+3,325,ok,0.4412,0.5968,0.2242
+4,224,ok,0.5011,0.6311,0.2635
+
+# Pooled (avg-across-folds) key metrics [mean = simple mean per experiment; random-baseline ndcg@k_e~0.30]
+metric,mean,n_weighted_mean,n_exp
+ndcg@k_e,0.47454,0.40311,95.0
+ndcg@5,0.45272,0.37144,95.0
+ndcg@10,0.50181,0.3909,95.0
+spearman,0.26056,0.27078,96.0
+pairwise_acc,0.6266,0.61321,98.0
+gw_pair_acc,0.68932,,5.0
+ef@5,3.50518,,51.0

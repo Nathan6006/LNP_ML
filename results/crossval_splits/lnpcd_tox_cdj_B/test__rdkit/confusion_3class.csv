@@ -1,0 +1,4 @@
+,pred:toxic (<0.8),pred:moderate (0.8-0.9),pred:non-toxic (>=0.9)
+true:toxic (<0.8),73,19,14
+true:moderate (0.8-0.9),49,4,65
+true:non-toxic (>=0.9),98,61,1030

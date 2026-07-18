@@ -50,13 +50,18 @@ def generate_reports_and_distributions(
     report_df = pd.DataFrame(report_rows)
     report_df.to_csv(csv_out, index=False)
 def main():
-    # however you already create all_df
-    all_df = pd.read_csv("../data/all_data.csv")
+    tox_df = pd.read_csv("../data/all_tox.csv")
+    del_df = pd.read_csv("../data/all_del.csv")
 
     generate_reports_and_distributions(
-        df=all_df,
-        csv_out="class_report.csv",
-        fig_prefix="class_dist"
+        df=tox_df,
+        csv_out="class_report_tox.csv",
+        fig_prefix="class_dist_tox"
+    )
+    generate_reports_and_distributions(
+        df=del_df,
+        csv_out="class_report_del.csv",
+        fig_prefix="class_dist_del"
     )
 
 if __name__ == "__main__":
