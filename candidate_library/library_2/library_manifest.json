@@ -1,0 +1,12 @@
+{
+  "generated_utc": "2026-07-21T12:31:41.886301+00:00",
+  "fragments_csv": "fragments_cys.csv",
+  "n_molecules": 82880,
+  "n_unique_smiles": 82880,
+  "exclusion_applied": null,
+  "n_excluded": 0,
+  "dedup_against": "lipid_library.csv",
+  "n_removed_as_duplicate": 33600,
+  "charge_convention": "bases neutral; carboxylates deprotonated; quaternary N kept +1 (matches LNPDB IL_SMILES)",
+  "assembly_time_s": 68.4
+}

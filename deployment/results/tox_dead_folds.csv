@@ -1,6 +1,6 @@
 fold,best_iteration,status
-0,0,dead_excluded
-1,2,used
-2,7,used
-3,88,used
-4,4,used
+0,14.0,used
+1,,missing
+2,602.0,used
+3,271.0,used
+4,63.0,used

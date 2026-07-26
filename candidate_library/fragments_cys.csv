@@ -1,0 +1,91 @@
+frag_id,frag_class,abbrev,full_name,smiles_raw,smiles_mapped,n_in_ports,n_out_ports,is_null,patched,patch_reason,notes,source_sheet,source_row
+head:HHHK,head,HHHK,His-His-His-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CC1=CNC=N1)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,O=C(NC(Cc1c[nH]cn1)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1])C(Cc1c[nH]cn1)NC(=O)C(CCCCN[*:2])N[*:3],1,2,False,False,,,Head,43
+head:HHKK,head,HHKK,His-His-Lys-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(Cc1c[nH]cn1)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,2,False,False,,,Head,44
+head:HHK,head,HHK,His-His-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,O=C(NC(Cc1c[nH]cn1)C(=O)[*:1])C(Cc1c[nH]cn1)NC(=O)C(CCCCN[*:2])N[*:3],1,2,False,False,,,Head,41
+head:HHSK,head,HHSK,His-His-Ser-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CC1=CNC=N1)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,O=C(NC(Cc1c[nH]cn1)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1])C(CO)NC(=O)C(CCCCN[*:2])N[*:3],1,2,False,False,,,Head,42
+head:HK,head,HK,His-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,O=C(NC(Cc1c[nH]cn1)C(=O)[*:1])C(CCCCN[*:2])N[*:3],1,2,False,False,,"pKa for solvent-facing histidine residues ~6.3-6.8, so it should be positive in acidic pH",Head,13
+head:HSK,head,HSK,His-Ser-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,O=C(NC(Cc1c[nH]cn1)C(=O)[*:1])C(CO)NC(=O)C(CCCCN[*:2])N[*:3],1,2,False,False,,,Head,39
+head:HSSK,head,HSSK,His-Ser-Ser-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CO)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,O=C(NC(CO)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1])C(CO)NC(=O)C(CCCCN[*:2])N[*:3],1,2,False,False,,,Head,40
+head:KHK,head,KHK,Lys-His-Lys,*C(=O)C(CCCCN)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(Cc1c[nH]cn1)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,22
+head:KHSK,head,KHSK,Lys-His-Ser-Lys,*C(=O)C(CCCCN)NC(=O)C(CC1=CNC=N1)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(Cc1c[nH]cn1)NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,23
+head:KKHK,head,KKHK,Lys-Lys-His-Lys,*C(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(Cc1c[nH]cn1)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,False,,,Head,24
+head:KKKK,head,KKKK,Lys-Lys-Lys-Lys,*C(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCCN)C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,False,,,Head,21
+head:KKK,head,KKK,Lys-Lys-Lys,*C(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,False,,,Head,19
+head:KKSK,head,KKSK,Lys-Lys-Ser-Lys,*C(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,False,,,Head,20
+head:KK,head,KK,Lys-Lys,*C(=O)C(CCCCN)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,"pKa for solvent-facing lysine residues ~10-10.5, so always positively charged",Head,11
+head:KSK,head,KSK,Lys-Ser-Lys,*C(=O)C(CCCCN)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,17
+head:KSSK,head,KSSK,Lys-Ser-Ser-Lys,*C(=O)C(CCCCN)NC(=O)C(CO)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,NCCCCC(NC(=O)C(CO)NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,18
+head:K,head,K,Lys,*C(=O)C(CCCCN*)N*,O=C(C(CCCCN[*:2])N[*:3])[*:1],1,2,False,False,,Straight into the lysine brancher. All head groups end with a lysine regardless,Head,7
+head:RHHK,head,RHHK,Arg-His-His-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CC1=CNC=N1)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(Cc1c[nH]cn1)NC(=O)C(Cc1c[nH]cn1)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,34
+head:RHK,head,RHK,Arg-His-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CC1=CNC=N1)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(Cc1c[nH]cn1)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,29
+head:RHSK,head,RHSK,Arg-His-Ser-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CC1=CNC=N1)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(Cc1c[nH]cn1)NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False, ; name typo Hisg->His,,Head,32
+head:RKKK,head,RKKK,Arg-Lys-Lys-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(CCCCN)NC(=O)C(CCCCN)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,35
+head:RKK,head,RKK,Arg-Lys-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CCCCN)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(CCCCN)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,30
+head:RKSK,head,RKSK,Arg-Lys-Ser-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CCCCN)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(CCCCN)NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,33
+head:RK,head,RK,Arg-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,"pKa for arginine residues ~12-12.5, so always positively charged",Head,12
+head:RSK,head,RSK,Arg-Ser-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,28
+head:RSSK,head,RSSK,Arg-Ser-Ser-Lys,*C(=O)C(CCCNC(=N)N)NC(=O)C(CO)NC(=O)C(CO)NC(=O)C(CCCCN*)N*,N=C(N)NCCCC(NC(=O)C(CO)NC(=O)C(CO)NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Head,31
+linker:n,linker,n,-,-,,1,1,True,False,,Straight from head group branch to lipid tail,Linker,7
+linker:AV,linker,AV,Ala-Val,*C(=O)C(C)NC(=O)C(C(C)C)N*,CC(NC(=O)C(N[*:2])C(C)C)C(=O)[*:1],1,1,False,False,,Alanine-Valine = good Cathepsin B recognition w/o massive side chain,Linker,15
+linker:CAV,linker,CAV,Cys-Ala-Val,*C(=O)C(CS)NC(=O)C(C)NC(=O)C(C(C)C)N*,CC(NC(=O)C(N[*:2])C(C)C)C(=O)NC(CS)C(=O)[*:1],1,1,False,False,,,Linker,36
+linker:CAVK,linker,CAVK,Cys-Ala-Val-Lys,*C(=O)C(CS)NC(=O)C(C)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(NC(=O)C(NC(=O)C(CCCCN[*:2])N[*:3])C(C)C)C(=O)NC(CS)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,54
+linker:CCitV,linker,CCitV,Cys-Cit-Val,*C(=O)C(CS)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCNC(N)=O)C(=O)NC(CS)C(=O)[*:1],1,1,False,False,,,Linker,37
+linker:CCitVK,linker,CCitVK,Cys-Cit-Val-Lys,*C(=O)C(CS)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCNC(N)=O)C(=O)NC(CS)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,55
+linker:CV,linker,CV,Cys-Val,*C(=O)C(CS)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CS)C(=O)[*:1],1,1,False,False,,,Linker,12
+linker:CVK,linker,CVK,Cys-Val-Lys,*C(=O)C(CS)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CS)C(=O)[*:1],1,2,False,False,,,Linker,38
+linker:CitV,linker,CitV,Cit-Val,*C(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCNC(N)=O)C(=O)[*:1],1,1,False,False,,"Citrulline-Valine = best Cathepsin B recognition, but bulky ureido group",Linker,16
+linker:HAV,linker,HAV,His-Ala-Val,*C(=O)C(CC1=CNC=N1)NC(=O)C(C)NC(=O)C(C(C)C)N*,CC(NC(=O)C(N[*:2])C(C)C)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,1,False,False,,,Linker,29
+linker:HAVK,linker,HAVK,His-Ala-Val-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(C)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(NC(=O)C(NC(=O)C(CCCCN[*:2])N[*:3])C(C)C)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,49
+linker:HCV,linker,HCV,His-Cys-Val,*C(=O)C(CC1=CNC=N1)NC(=O)C(CS)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CS)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,1,False,False,,,Linker,28
+linker:HCVK,linker,HCVK,His-Cys-Val-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CS)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CS)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,48
+linker:HCitV,linker,HCitV,His-Cit-Val,*C(=O)C(CC1=CNC=N1)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCNC(N)=O)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,1,False,False,,,Linker,30
+linker:HCitVK,linker,HCitVK,His-Cit-Val-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCNC(N)=O)C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,50
+linker:HV,linker,HV,His-Val,*C(=O)C(CC1=CNC=N1)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,1,False,False,,,Linker,14
+linker:HVK,linker,HVK,His-Val-Lys,*C(=O)C(CC1=CNC=N1)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(Cc1c[nH]cn1)C(=O)[*:1],1,2,False,False,,,Linker,31
+linker:KAV,linker,KAV,Lys-Ala-Val,*C(=O)C(CCCCN)NC(=O)C(C)NC(=O)C(C(C)C)N*,CC(NC(=O)C(N[*:2])C(C)C)C(=O)NC(CCCCN)C(=O)[*:1],1,1,False,False,,,Linker,33
+linker:KAVK,linker,KAVK,Lys-Ala-Val-Lys,*C(=O)C(CCCCN)NC(=O)C(C)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(NC(=O)C(NC(=O)C(CCCCN[*:2])N[*:3])C(C)C)C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,52
+linker:KCV,linker,KCV,Lys-Cys-Val,*C(=O)C(CCCCN)NC(=O)C(CS)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CS)C(=O)NC(CCCCN)C(=O)[*:1],1,1,False,False,,,Linker,32
+linker:KCVK,linker,KCVK,Lys-Cys-Val-Lys,*C(=O)C(CCCCN)NC(=O)C(CS)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CS)C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,51
+linker:KCitV,linker,KCitV,Lys-Cit-Val,*C(=O)C(CCCCN)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCNC(N)=O)C(=O)NC(CCCCN)C(=O)[*:1],1,1,False,False,,,Linker,34
+linker:KCitVK,linker,KCitVK,Lys-Cit-Val-Lys,*C(=O)C(CCCCN)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCNC(N)=O)C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,53
+linker:KV,linker,KV,Lys-Val,*C(=O)C(CCCCN)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCCN)C(=O)[*:1],1,1,False,False,,,Linker,13
+linker:KVK,linker,KVK,Lys-Val-Lys,*C(=O)C(CCCCN)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCCN)C(=O)[*:1],1,2,False,False,,,Linker,35
+linker:SAV,linker,SAV,Ser-Ala-Val,*C(=O)C(CO)NC(=O)C(C)NC(=O)C(C(C)C)N*,CC(NC(=O)C(N[*:2])C(C)C)C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,25
+linker:SAVK,linker,SAVK,Ser-Ala-Val-Lys,*C(=O)C(CO)NC(=O)C(C)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(NC(=O)C(NC(=O)C(CCCCN[*:2])N[*:3])C(C)C)C(=O)NC(CO)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,46
+linker:SCV,linker,SCV,Ser-Cys-Val,*C(=O)C(CO)NC(=O)C(CS)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CS)C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,22
+linker:SCVK,linker,SCVK,Ser-Cys-Val-Lys,*C(=O)C(CO)NC(=O)C(CS)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CS)C(=O)NC(CO)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,43
+linker:SCitV,linker,SCitV,Ser-Cit-Val,*C(=O)C(CO)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCNC(N)=O)C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,26
+linker:SCitVK,linker,SCitVK,Ser-Cit-Val-Lys,*C(=O)C(CO)NC(=O)C(CCCNC(=O)N)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCNC(N)=O)C(=O)NC(CO)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,47
+linker:SHV,linker,SHV,Ser-His-Val,*C(=O)C(CO)NC(=O)C(CC1=CNC=N1)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(Cc1c[nH]cn1)C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,24
+linker:SHVK,linker,SHVK,Ser-His-Val-Lys,*C(=O)C(CO)NC(=O)C(CC1=CNC=N1)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(Cc1c[nH]cn1)C(=O)NC(CO)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,45
+linker:SKV,linker,SKV,Ser-Lys-Val,*C(=O)C(CO)NC(=O)C(CCCCN)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CCCCN)C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,23
+linker:SKVK,linker,SKVK,Ser-Lys-Val-Lys,*C(=O)C(CO)NC(=O)C(CCCCN)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CCCCN)C(=O)NC(CO)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,44
+linker:SSV,linker,SSV,Ser-Ser-Val,*C(=O)C(CO)NC(=O)C(CO)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CO)C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,21
+linker:SSVK,linker,SSVK,Ser-Ser-Val-Lys,*C(=O)C(CO)NC(=O)C(CO)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CO)C(=O)NC(CO)C(=O)[*:1],1,2,False,True,"port fix: 2nd out-port was on carbonyl C, moved to alpha-N",,Linker,42
+linker:SV,linker,SV,Ser-Val,*C(=O)C(CO)NC(=O)C(C(C)C)N*,CC(C)C(N[*:2])C(=O)NC(CO)C(=O)[*:1],1,1,False,False,,,Linker,11
+linker:SVK,linker,SVK,Ser-Val-Lys,*C(=O)C(CO)NC(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)NC(CO)C(=O)[*:1],1,2,False,False,,,Linker,27
+linker:VK,linker,VK,Val-Lys,*C(=O)C(C(C)C)NC(=O)C(CCCCN*)N*,CC(C)C(NC(=O)C(CCCCN[*:2])N[*:3])C(=O)[*:1],1,2,False,False,,,Linker,17
+starter:n,starter,n,-,O*,O[*:2],0,1,False,False,True,carboxyl drawn neutral (COOH) to match old components.csv null starter,Starter,7
+starter:Bu2A,starter,Bu2A,"1,4-Diaminobutane",NCCCCN*,NCCCCN[*:2],0,1,False,False,,(+1) charge always,Starter,19
+starter:BuOHA,starter,BuOHA,Butanolamine,OCCCCN*,OCCCCN[*:2],0,1,False,False,,Neutral,Starter,13
+starter:Et2A,starter,Et2A,"1,2-Diaminoethane",NCCN*,NCCN[*:2],0,1,False,False,,(+1) charge always,Starter,17
+starter:EtOHA,starter,EtOHA,Ethanolamine,OCCN*,OCCN[*:2],0,1,False,False,,Neutral,Starter,11
+starter:Pr2A,starter,Pr2A,"1,3-Diaminopropane",NCCCN*,NCCCN[*:2],0,1,False,False,,(+1) charge always,Starter,18
+starter:PrOHA,starter,PrOHA,Propanolamine,OCCCN*,OCCCN[*:2],0,1,False,False,,Neutral,Starter,12
+tail:s1(11),tail,s1(11),Undecanoic acid,*C(=O)CCCCCCCCCC,CCCCCCCCCCC(=O)[*:1],1,0,False,False,,11 chain,Tail,14
+tail:s1(12),tail,s1(12),Dodecanoic acid,*C(=O)CCCCCCCCCCC,CCCCCCCCCCCC(=O)[*:1],1,0,False,False,,12 chain,Tail,15
+tail:s1(13),tail,s1(13),Tridecanoic acid,*C(=O)CCCCCCCCCCCC,CCCCCCCCCCCCC(=O)[*:1],1,0,False,False,,13 chain,Tail,16
+tail:s1(14),tail,s1(14),Tetradecanoic acid,*C(=O)CCCCCCCCCCCCC,CCCCCCCCCCCCCC(=O)[*:1],1,0,False,False,,14 chain,Tail,17
+tail:s1(15),tail,s1(15),Pentadecanoic acid,*C(=O)CCCCCCCCCCCCCC,CCCCCCCCCCCCCCC(=O)[*:1],1,0,False,False,,15 chain,Tail,18
+tail:s2(7/10),tail,s2(7/10),2-heptyldodecanoic acid,*C(=O)C(CCCCCCC)CCCCCCCCCC,CCCCCCCCCCC(CCCCCCC)C(=O)[*:1],1,0,False,False,,7/10 chains,Tail,25
+tail:s2(7/7),tail,s2(7/7),2-heptylnonanoic acid,*C(=O)C(CCCCCCC)CCCCCCC,CCCCCCCC(CCCCCCC)C(=O)[*:1],1,0,False,False,,7/7 chains,Tail,22
+tail:s2(7/8),tail,s2(7/8),2-heptyldecanoic acid,*C(=O)C(CCCCCCC)CCCCCCCC,CCCCCCCCC(CCCCCCC)C(=O)[*:1],1,0,False,False,,7/8 chains,Tail,23
+tail:s2(7/9),tail,s2(7/9),2-heptylundecanoic acid,*C(=O)C(CCCCCCC)CCCCCCCCC,CCCCCCCCCC(CCCCCCC)C(=O)[*:1],1,0,False,False,,7/9 chains,Tail,24
+tail:s2(8/10),tail,s2(8/10),2-octyldodecanoic acid,*C(=O)C(CCCCCCCC)CCCCCCCCCC,CCCCCCCCCCC(CCCCCCCC)C(=O)[*:1],1,0,False,True,chain-length off by one (2-alkyl acid),8/10 chains,Tail,28
+tail:s2(8/8),tail,s2(8/8),2-octyldecanoic acid,*C(=O)C(CCCCCCCC)CCCCCCCC,CCCCCCCCC(CCCCCCCC)C(=O)[*:1],1,0,False,False,,8/8 chains,Tail,26
+tail:s2(8/9),tail,s2(8/9),2-octylundecanoic acid,*C(=O)C(CCCCCCCC)CCCCCCCCC,CCCCCCCCCC(CCCCCCCC)C(=O)[*:1],1,0,False,True,chain-length off by one (2-alkyl acid),8/9 chains,Tail,27
+tail:u(Lin),tail,u(Lin),Linoleic acid,*C(=O)CCCCCCC\C=C/C\C=C/CCCCC,CCCCC/C=C\C/C=C\CCCCCCCC(=O)[*:1],1,0,False,False,,"Omega 6; 18 chain, 2 unsaturated bonds",Tail,8
+tail:u(Ole),tail,u(Ole),Oleic acid,*C(=O)CCCCCCC\C=C/CCCCCCCC,CCCCCCCC/C=C\CCCCCCCC(=O)[*:1],1,0,False,False,,"Omega 9; 18 chain, 1 unsaturated bond",Tail,7
+tail:u(Pal),tail,u(Pal),Palmitoleic acid,*C(=O)CCCCCCC/C=C\CCCCCC,CCCCCC/C=C\CCCCCCCC(=O)[*:1],1,0,False,False,,"Omega 7; 16 chain, 1 unsaturated bond",Tail,10
+tail:u(aLin),tail,u(aLin),Alpha-linolenic acid,*C(=O)CCCCCCC\C=C/C\C=C/C\C=C/CC,CC/C=C\C/C=C\C/C=C\CCCCCCCC(=O)[*:1],1,0,False,False,,"Omega 3; 18 chain, 3 unsaturated bonds",Tail,9
+tail:s2(6/8),tail,s2(6/8), 2-hexyloctanoic acid,*C(=O)C(CCCCCC)CCCCCCCC,CCCCCCCCC(CCCCCC)C(=O)[*:1],1,0,False,False,,,Tail,29

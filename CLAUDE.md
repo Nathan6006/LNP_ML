@@ -335,6 +335,77 @@ python sanity_checks.py
 
 *(Newest first)*
 
+### 2026-07-21 — Web app: Components **condensed-names toggle** + **Visual tab regenerated** on the merged library
+
+**Why**: two follow-ups to the merged-library rebuild — (1) let the Components tab regroup by the
+*condensed* canonical fragment names, and (2) bring the Visual tab (left stale in the prior entry) in
+line with the merged library.
+
+**(1) Components condensed toggle.** `build_data.py::build_components(full, suffix, mapping=None,
+condensed=False)` — when `condensed`, it `condense_frame`s `full` (adds `c_starter/c_head/c_linker/c_tail`
+via `condensed_lipids.csv`) and groups on the `c_*` cols; the canonical abbrev is looked up in
+`components.csv` (labels like `RS2K`/`2A`/`OH`/`H2SK`/`HS2K`/`KS2K` aren't real fragments → null
+smiles/full_name, expected). Emits `components_condensed{,_no8}.json` (schema byte-identical to
+`components*.json`, + `meta.condensed=true`). Result: **152 raw fragment groups → 123 condensed**
+(starter 7→3, head 39→26, linker 66→54, tail 40→40 identity); e.g. head `RS2K` pools 41,020 lipids.
+`main()` now calls `build_components` twice (raw + condensed).
+**Fragment structures**: `_component_lut()` reads `components.csv` and fills the new cysteine fragments
+(HHKK, RHHK, KKK, HCV, HCVK, …) from `candidate_library/fragments_cys.csv` (components.csv wins the 27
+shared-key conflicts, all just `[NH3+]`-vs-`N` protonation depiction — so existing fragments are visually
+unchanged). Condensed canonical-only labels (RS2K/2A/OH/H2SK/…) borrow their **most common member
+fragment's** SMILES+full_name as a representative (`rep_raw` = per-group `value_counts().index[0]`).
+Result: raw+condensed "fragment not found" warnings drop from 31/37 → the lone null-linker `n` (a direct
+bond, `smiles_raw='-'` → "No structure"), which is correct.
+Frontend: new **Names: Raw / Condensed** segmented toggle in `#view-components` (`.comp-head` flex wrapper,
+`#compmode`). app.js: `compCondensed` flag + `CRAW` (always-raw component set); `pointComponents()` picks
+`ds.compc` vs `ds.comp` by the flag and always sets `CRAW = ds.comp.rows`; `setCompMode()` flips + closes
+drawer + re-renders. **Crucially `compByClsAbbrev` (candidate-drawer composition badges) and the filter
+panel's `FRAG_FULLNAME` now read `CRAW`, not `CALL`**, so the toggle only affects the Components table —
+badges/filter stay on real fragment names. `setScenario` delegates the components block to
+`pointComponents()`. Component drawer already handles null smiles ("No structure").
+
+**(2) Visual regenerated.** `main()` swapped `build_clusters(full, top)` → `build_visual(full, top, suffix)`
+(same return dict — `cluster_by_lipid`/`cluster_category`/`cand_fps`/`cand_labels` — so all downstream tabs
+unchanged, PLUS it writes `visual{,_no8}.json`). Now sourced from the merged top-2500: morgan cluster sizes
+w8 `[1232,343,328,168,150,105,96,34,30,14]`, no8 differs; ChemBERTa cache union covers 100%. `umap-learn`
+(0.5.9) confirmed installed. `build_clusters()` kept as a no-UMAP fallback but no longer called.
+
+**Build**: `cd results_web_app/build && python build_data.py` → **12 JSONs** (was 10), ~1–2 min (UMAP).
+Verified headless: Components "Condensed" shows 123 groups w/ merged names + isomers pooled + "condensed
+names (isomeric fragments merged)" meta; Visual renders Pareto front (9 on front) + Morgan UMAP on the
+merged 2,500. `node --check app.js` OK. README updated (twelve JSONs, Names toggle, Visual no longer stale,
+umap-learn now required).
+
+### 2026-07-21 — Web app: rebuilt the four main tabs on the **merged library** (old + cysteine); Visual left stale
+
+**Why**: user asked to remake ALL the viewer data off the new expanded/**merged** screen
+(`deployment_results_full/`), so every tab reflects the merged library (~444k with-8, ~335k without-8).
+A short-lived Cysteine page (added earlier same day) was **reverted** — the merge subsumes it. Visual
+tab explicitly **not** regenerated for now (its `visual*.json` stay as the old top-2500; the
+Candidates/Condensed Cluster column + Chemotypes Cluster accordion are recomputed independently, see
+below).
+
+**Merged data source**: the four `deployment_results_full/*_score_full_{w_8,no_8}.csv` = old library
+(357,120 with-8) **+** new cysteine additions (87,516), re-percentiled over the union by
+`build_w_no_8.py` → **w_8 = 444,636, no_8 = 334,948** (109,688 eight-tailed). Features come from the
+**union of two feature files**: old `deployment/lipid_library_features.csv` + new
+`deployment_results_full/library_2_features.csv` (same columns; 0 lipid_id collision). Tox = new
+`tox_score_full_w_8.csv` (all lipids; folds **[0,2,3,4]**, fold 1 dead).
+
+**`build_data.py` changes**: `DEL_SCORES`/`DEL_SCORES_NO8`/tox now point at the merged files;
+`load_libfeat()` concatenates both feature files; each 8-tail scenario loads its own precomputed del
+file directly (percentiles already correct — no more raw re-ranking). `build_visual` (UMAP) is **not**
+called; replaced by lightweight `build_clusters(top)` = Morgan(r2,2048) agglomerative-complete k=10 +
+ChemBERTa k-means k=10 (clusters only, **no UMAP**, so umap-learn not needed) → supplies
+`cluster_by_lipid` (Candidates/Condensed Cluster col) and the Chemotypes Cluster accordion's
+morgan+chemberta variants. Everything else (`build_candidates/components/chemotypes/condensed`)
+unchanged, now aggregating over the merged library. Emits the 8 main JSONs
+(data/components/chemotypes/condensed × {"", "_no8"}); `visual*.json` untouched.
+
+**Frontend**: Cysteine tab/section/logic fully reverted (app.js + index.html back to the
+filter-feature baseline; `node --check` passes, 0 `cys` refs). No other frontend change — the four
+tabs consume the rebuilt JSONs as-is.
+
 ### 2026-07-15 — Deployment screen v2 RUN END-TO-END: self-contained `deployment/`, varied folds, percentile delivery score, both screens executed
 
 **Why**: a sanity check on the v1 delivery screen output exposed that (a) the 5 folds were near-identical
