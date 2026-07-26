@@ -442,7 +442,18 @@ LiON_paper checkpoints, and `eco_library.parquet` (load-bearing now that `eco_li
 (commit `89ac8f18`). **Do not delete that tag** — it is the only copy of the stripped history. Every commit
 SHA changed, so any other clone / the `claude/distracted-perlman` branch must be re-cloned.
 
-**Result: 14 GB → 4.8 GB** (tree 4.5 GB, `.git` 256 MB). Residual is ~60% embedding cache (2.7 GB), kept
+**`vendor/MolGpKa` trimmed 283 MB → 12 MB** (−271 MB): removed the upstream `.git/` (83 MB),
+`src/datasets/` (184 MB — the same `mols.sdf` stored three times as `.sdf` + `.sdf.tar` + `.sdf.tar.gz`),
+and `benchmark_delta_pka/`. **Two runtime dependencies kept**: `models/weight_{acid,base}.pth`
+(`molgpka_model.py:133`) and — easy to miss — **`src/utils/smarts_pattern.tsv`**, read by
+`_load_smarts()` (`molgpka_model.py:43,216`); `src/utils/` is not merely documentation. Rest of `src/`
+kept as the reimplementation spec (`descriptor.py` 29-dim atom vector, `gcn_conv.py`). Upstream URL +
+commit `4dc8352` recorded in new `vendor/MolGpKa/PROVENANCE.md` with restore instructions.
+**Verified**: pKa predictions bit-identical before/after across 4 molecules (incl. upstream's own
+reference molecule), for all four `molgpka_model.py` copies (`scripts/`, `deployment/`, `del_lab/`,
+`tox_lab/` — the labs symlink `vendor/` so they share the one copy).
+
+**Result: 14 GB → 4.5 GB** (tree 4.3 GB, `.git` 256 MB). Residual is ~63% embedding cache (2.7 GB), kept
 deliberately. Note `deployment/training_runs/` and `new_data/crossval_splits/` are now **on disk only**
 (gitignored + stripped from history).
 
