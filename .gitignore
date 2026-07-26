@@ -1,0 +1,29 @@
+.DS_Store
+__pycache__/
+*.pyc
+
+# embedding caches — multi-GB, regenerable
+deployment/cache/
+*_lab/cache/
+
+# screen outputs — regenerable from models + library
+deployment/results/*.csv
+deployment/results/scenarios/
+deployment/lipid_library_features.csv
+results/screen/
+
+# large library artifacts (parquets ARE tracked; the CSV projections are not)
+candidate_library/library*/eco_library_full.csv
+candidate_library/**/lipid_library.csv
+
+# training runs
+deployment/training_runs/
+new_data/crossval_splits/
+*.bak.csv
+
+# vendored third-party repo (has its own git history; not a submodule)
+vendor/
+
+# v2 scratch dir being merged into deployment/ — temporary until Phase 2/3 of the cleanup
+deployment_results_full/
+deployment/_merged_staging/
