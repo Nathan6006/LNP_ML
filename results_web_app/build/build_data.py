@@ -29,17 +29,15 @@ HERE = os.path.dirname(os.path.abspath(__file__))       # results_web_app/build
 APP_ROOT = os.path.dirname(HERE)                        # results_web_app
 REPO = os.path.dirname(APP_ROOT)                        # repo root
 DATA_DIR = os.path.join(APP_ROOT, "data")               # served JSON output dir
-# MERGED (expanded) library: old deployment library + new cysteine additions,
-# re-percentiled over the union (built by deployment_results_full/build_w_no_8.py).
-# Two 8-tail scenarios come precomputed: w_8 (all lipids, ~444k) and no_8 (8-tailed
-# dropped + percentiles recomputed, ~335k). The 8-tail split is by the is8() rule.
-RES_FULL = os.path.join(REPO, "deployment_results_full")
-DEL_SCORES = os.path.join(RES_FULL, "del_score_full_w_8.csv")
-DEL_SCORES_NO8 = os.path.join(RES_FULL, "del_score_full_no_8.csv")
-TOX_SCORES = os.path.join(RES_FULL, "tox_score_full_w_8.csv")   # viability is scenario-independent
-# Feature/fragment columns come from the UNION of the old + new library feature files.
-FEATURES = os.path.join(REPO, "deployment", "lipid_library_features.csv")
-FEATURES_NEW = os.path.join(RES_FULL, "library_2_features.csv")
+# MERGED library (generations 1..N in one file). Two 8-tail scenarios come precomputed:
+# w8 (all lipids, 444,636) and no8 (8-tailed dropped + percentiles recomputed, 334,948).
+# The 8-tail split is by the is8() rule. Each score file carries the delivery raw +
+# percentile block AND the tox block; `smiles` lives only in FEATURES.
+DEPLOY = os.path.join(REPO, "deployment")
+SCORES = {"": os.path.join(DEPLOY, "results", "screen_scores_w8.csv"),
+          "_no8": os.path.join(DEPLOY, "results", "screen_scores_no8.csv")}
+TOX_SCORES = SCORES[""]              # viability is scenario-independent
+FEATURES = os.path.join(DEPLOY, "lipid_library_features.csv")
 COMPONENTS = os.path.join(REPO, "candidate_library", "components.csv")
 # new cysteine building blocks (same schema); used to fill SMILES/full-name for
 # fragments that aren't in the original components.csv.
@@ -59,12 +57,12 @@ def is8(lid):
 
 
 def load_libfeat():
-    """Union of the old + new library feature files (fragments + n_tails + the
-    derived feature cols), keyed by lipid_id. n_tails is overridden by is8()."""
-    cols = ["lipid_id"] + LIB_COLS + list(FEAT_COLS)
-    old = pd.read_csv(FEATURES, usecols=cols)
-    new = pd.read_csv(FEATURES_NEW, usecols=cols)
-    lf = pd.concat([old, new], ignore_index=True).drop_duplicates("lipid_id")
+    """Merged library feature file (fragments + n_tails + the derived feature cols +
+    smiles), keyed by lipid_id. n_tails is overridden by is8().
+    `smiles` is included here because the score files no longer carry it -- this file
+    is the single source of truth for lipid_id -> smiles."""
+    cols = ["lipid_id", "smiles"] + LIB_COLS + list(FEAT_COLS)
+    lf = pd.read_csv(FEATURES, usecols=cols).drop_duplicates("lipid_id")
     lf["n_tails"] = np.where(lf["lipid_id"].map(is8), 8, lf["n_tails"])
     return lf
 
@@ -92,12 +90,12 @@ def load_tox():
     (recomputed from the folds so mean/std are internally consistent)."""
     global TOX_FOLDS, TOX_V_COLS, TOX_PCT_COLS
     t = pd.read_csv(TOX_SCORES)
-    cv = sorted((c for c in t.columns if c.startswith("cv_")),
-                key=lambda c: int(c.split("_")[1]))
-    TOX_FOLDS = [int(c.split("_")[1]) for c in cv]
+    cv = sorted((c for c in t.columns if c.startswith("tox_cv_")),
+                key=lambda c: int(c.split("_")[-1]))
+    TOX_FOLDS = [int(c.split("_")[-1]) for c in cv]
     TOX_V_COLS = [f"tox_v_{i}" for i in TOX_FOLDS]
     TOX_PCT_COLS = [f"tox_pct_{i}" for i in TOX_FOLDS]
-    ren = {c: f"tox_v_{int(c.split('_')[1])}" for c in cv}
+    ren = {c: f"tox_v_{int(c.split('_')[-1])}" for c in cv}
     t = t.rename(columns=ren)
     t["tox_viab_mean"] = t[TOX_V_COLS].mean(axis=1)
     t["tox_viab_std"] = t[TOX_V_COLS].std(axis=1, ddof=0)
@@ -208,11 +206,11 @@ def build_candidates(full, top_n, suffix, meta_extra=None, cluster_by_lipid=None
     meta = {
         "n": len(rows),
         "total": int(len(full)),
-        "source": "deployment_results_full/del_score_full_*.csv (merged library)",
+        "source": "deployment/results/screen_scores_*.csv (merged library, gen 1+2)",
         "score_label": "Delivery percentile (0-100, higher = better)",
         "folds": len(CV_COLS),
         "tox_folds": TOX_FOLDS,
-        "tox_source": "deployment/results/tox_screen_scores.csv",
+        "tox_source": "deployment/results/screen_scores_w8.csv (tox block)",
         "condition": MODAL_CONDITION,
     }
     if meta_extra:
@@ -296,11 +294,11 @@ def build_condensed(scores, libfeat, mapping, top_n, suffix, clus=None, extra_fr
         "n": len(rows),
         "total": int(len(summary)),
         "total_lipids": int(len(scores)),
-        "source": "deployment/results/del_screen_scores.csv (condensed)",
+        "source": "deployment/results/screen_scores_*.csv (merged library, condensed)",
         "score_label": "Top member percentile (ranked among all lipids, duplicates collapsed)",
         "folds": len(CV_COLS),
         "tox_folds": TOX_FOLDS,
-        "tox_source": "deployment/results/tox_screen_scores.csv",
+        "tox_source": "deployment/results/screen_scores_w8.csv (tox block)",
         "condition": MODAL_CONDITION,
         "include_8tail": (suffix == ""),
     }
@@ -627,11 +625,9 @@ def _chemberta_embeddings(smiles_list):
     global _CB_CACHE
     if _CB_CACHE is None:
         import pickle
-        # merge the old-library cache with the new cysteine-library cache so the
-        # merged top-2500 (both old + new lipids) is fully covered
+        # single merged cache covers the whole library (all generations)
         _CB_CACHE = {}
-        for p in (os.path.join(REPO, "deployment", "cache", "emb_ChemBERTa-77M-MTR_masked_mean.pkl"),
-                  os.path.join(RES_FULL, "cache", "emb_ChemBERTa-77M-MTR_masked_mean.pkl")):
+        for p in (os.path.join(DEPLOY, "cache", "emb_ChemBERTa-77M-MTR_masked_mean.pkl"),):
             if os.path.exists(p):
                 with open(p, "rb") as fh:
                     _CB_CACHE.update(pickle.load(fh))
@@ -886,11 +882,17 @@ def main():
 
     # Each 8-tail scenario reads its own precomputed del file (delivery percentiles
     # already computed over exactly that pool): w_8 = 8-tailed IN, no_8 = OUT.
-    del_files = {"": DEL_SCORES, "_no8": DEL_SCORES_NO8}
     for exclude_8, suffix in [(False, ""), (True, "_no8")]:
         label = "excluding 8-tailed" if exclude_8 else "all lipids"
         print(f"\n=== scenario: {label} ({'*'+suffix if suffix else 'default'}) ===")
-        d = pd.read_csv(del_files[suffix])
+        # Rename the consolidated schema back to the legacy column names so every
+        # downstream builder (finalize_frame, build_visual, build_candidates, ...)
+        # is unchanged. `smiles` now comes from libfeat, not the score file.
+        d = pd.read_csv(SCORES[suffix])
+        d = d.rename(columns={"del_pct_mean": "score_mean", "del_pct_std": "score_std",
+                              **{f"del_pct_cv_{i}": f"cv_{i}" for i in range(5)},
+                              **{f"del_raw_cv_{i}": f"raw_cv_{i}" for i in range(5)}})
+        d = d.merge(libfeat[["lipid_id", "smiles"]], on="lipid_id", how="left")
         D = (d.merge(libfeat[["lipid_id"] + LIB_COLS + list(FEAT_COLS)],
                      on="lipid_id", how="left")
               .merge(tox, on="lipid_id", how="left"))

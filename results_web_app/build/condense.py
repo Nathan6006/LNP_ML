@@ -116,24 +116,6 @@ _OUT_COLS = ["overall_rank", "condensed_id", "top_lipid_id", "smiles", "n_varian
              "max_score", "avg_score", "std_score", "max_minus_std"]
 
 
-def condense_csv(in_path, out_path, mapping):
-    df = pd.read_csv(in_path)
-    summary = aggregate(condense_frame(df, mapping))
-    summary[_OUT_COLS].to_csv(out_path, index=False)
-    print(f"{os.path.basename(in_path)}: {len(df)} lipids -> "
-          f"{len(summary)} condensed groups -> {out_path}")
-    return summary
-
-
-def main():
-    mapping = load_mapping()
-    for src, dst in [
-        ("del_screen_scores.csv", "del_screen_scores_condensed.csv"),
-        ("del_screen_scores_no8.csv", "del_screen_scores_no8_condensed.csv"),
-    ]:
-        condense_csv(os.path.join(RESULTS_DIR, src),
-                     os.path.join(RESULTS_DIR, dst), mapping)
-
-
-if __name__ == "__main__":
-    main()
+# NOTE: this module is a LIBRARY only. The former `condense_csv`/`main()` CLI wrote
+# del_screen_scores{,_no8}_condensed.csv, which nothing read -- build_data.build_condensed()
+# rebuilds the condensation in memory from the score frame. Removed in the v1/v2 merge.

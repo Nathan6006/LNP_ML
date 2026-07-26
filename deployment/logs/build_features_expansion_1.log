@@ -1,0 +1,15 @@
+Library: 82880 rows from ../../candidate_library/library_2/lipid_library.csv
+  del: 17 structural + 23 modal-condition cols -> 40 'del__*' feature columns
+  tox: 7 structural + 18 modal-condition cols -> 25 'tox__*' feature columns
+  union structural cols (parsed once per molecule): ['molwtlog1p', 'Nitrogen.Count', 'Rotatable.Bonds', 'LogP', 'Fraction.sp3.Carbons', 'Topological.Polar.Surface.Area', 'Hydrogen.Bond.Donors', 'Hydrogen.Bond.Acceptors', 'Heavy.Atoms', 'van.der.Waals.Molecular.Volume', 'Molar.Refractivity', 'has_ester', 'has_carbonate', 'has_disulfide', 'num_protonatable_nitrogens', 'num_unsaturated_cc_bonds', 'Num_carbon_in_tail', 'Num_tails', 'lnMolWt', 'num_permanent_cationic_N', 'formal_net_charge']
+structural features:   0%|          | 0/82880 [00:00<?, ?mol/s]structural features:  24%|██▍       | 20000/82880 [01:24<04:26, 236.19mol/s]structural features:  24%|██▍       | 20000/82880 [01:40<04:26, 236.19mol/s]structural features:  48%|████▊     | 40000/82880 [02:45<02:57, 242.14mol/s]structural features:  48%|████▊     | 40000/82880 [03:00<02:57, 242.14mol/s]structural features:  72%|███████▏  | 60000/82880 [04:06<01:33, 244.83mol/s]structural features:  72%|███████▏  | 60000/82880 [04:20<01:33, 244.83mol/s]structural features:  97%|█████████▋| 80000/82880 [05:26<00:11, 246.57mol/s]structural features: 100%|██████████| 82880/82880 [05:38<00:00, 246.80mol/s]structural features: 100%|██████████| 82880/82880 [05:38<00:00, 245.07mol/s]
+
+[del] modal condition (held constant for every candidate):
+  Modal formulation: largest exact-formulation group = 3128 training rows (18.0% of 17381 usable rows)
+    active categories: ['Cargo_type_FLuc', 'Model_type_HeLa', 'HL_name_DOPE']
+
+[tox] modal condition (held constant for every candidate):
+  Modal formulation: largest exact-formulation group = 180 training rows (12.7% of 1413 usable rows)
+    active categories: ['Helper_lipid_ID_DOPE', 'Cargo_type_mRNA', 'Model_type_HeLa']
+
+Wrote 82880 rows x (40 del__ + 25 tox__ feature cols) -> ../../deployment_results_full/library_2_features.csv

@@ -10,11 +10,11 @@ Bounding box = per-feature [min, max] over the training delivery CSV, on the mod
 structural descriptors. A candidate PASSES if every feature is within its box.
 
 Output: results/del_ad_filtered.csv -- passing rows only, with scores + the AD features, ranked by
-del_score_mean desc. Also writes a per-feature "bind" summary to stdout.
+del_pct_mean desc. Also writes a per-feature "bind" summary to stdout.
 
 Usage (from scripts/):
     python ad_filter.py                         # full-model scores (recommended)
-    python ad_filter.py --scores ../results/del_screen_scores.csv   # ablated-model scores
+    python ad_filter.py --scores ../results/screen_scores_no8.csv   # no-8-tail scenario
 """
 import os
 
@@ -27,7 +27,7 @@ import pandas as pd
 from tqdm import tqdm
 
 import screen_features as sf
-from config import DATA_FILES, DEPLOY_ROOT, RESULTS_DIR
+from config import DATA_FILES, DEPLOY_ROOT, LIBRARY_FEATURES, RESULTS_DIR, SCREEN_SCORES_W8
 from ranking_common import canonicalize_smiles
 
 # Continuous structural descriptors the delivery model uses (binary has_* excluded -- no range).
@@ -53,8 +53,8 @@ def training_box(data_dir):
 
 def main():
     ap = argparse.ArgumentParser(description="Applicability-domain filter for the delivery screen.")
-    ap.add_argument("--scores", default=os.path.join(RESULTS_DIR, "del_screen_scores_old.csv"),
-                    help="Screen scores to attach/rank (default: full-feature model = del_screen_scores_old.csv).")
+    ap.add_argument("--scores", default=SCREEN_SCORES_W8,
+                    help="Screen scores to attach/rank (default: merged-library w8 scenario).")
     ap.add_argument("--data_dir", default=DEPLOY_ROOT)
     ap.add_argument("--out", default=os.path.join(RESULTS_DIR, "del_ad_filtered.csv"))
     ap.add_argument("--chunk", type=int, default=20000)
@@ -66,9 +66,14 @@ def main():
         print(f"  {f:32s} [{box[f][0]:.3f}, {box[f][1]:.3f}]")
 
     sc = pd.read_csv(args.scores)
-    score_col = "score_mean" if "score_mean" in sc.columns else sc.columns[2]
-    std_col = "score_std" if "score_std" in sc.columns else None
-    sc = sc[["lipid_id", "smiles", score_col] + ([std_col] if std_col else [])].copy()
+    score_col = "del_pct_mean" if "del_pct_mean" in sc.columns else sc.columns[1]
+    std_col = "del_pct_std" if "del_pct_std" in sc.columns else None
+    sc = sc[["lipid_id", score_col] + ([std_col] if std_col else [])].copy()
+    # `smiles` was dropped from the score files; LIBRARY_FEATURES is the source of truth.
+    smiles_lut = pd.read_csv(LIBRARY_FEATURES, usecols=["lipid_id", "smiles"])
+    sc = sc.merge(smiles_lut, on="lipid_id", how="left")
+    assert sc["smiles"].notna().all(), "some lipid_ids have no smiles in LIBRARY_FEATURES"
+    sc = sc[["lipid_id", "smiles", score_col] + ([std_col] if std_col else [])]
     print(f"\nScores: {len(sc)} rows from {os.path.basename(args.scores)} (ranking col: {score_col})")
 
     canon = sc["smiles"].astype(str).apply(canonicalize_smiles).tolist()

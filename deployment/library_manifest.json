@@ -1,0 +1,21 @@
+{
+  "generated_utc": "2026-07-26T18:14:28.407012Z",
+  "n_lipids": 448700,
+  "n_alive": 444636,
+  "n_dead": 4064,
+  "sources": [
+    {
+      "gen": 1,
+      "n": 360640,
+      "n_dead": 3520,
+      "parquet": "candidate_library/library/eco_library.parquet"
+    },
+    {
+      "gen": 2,
+      "n": 88060,
+      "n_dead": 544,
+      "parquet": "candidate_library/library_2/eco_library.parquet",
+      "known_issue": "n_tails / tox__Num_tails = 4 for the 8-tailed lipids in this generation (should be 8 to match gen1); scores on disk were produced with 4 -- do not renormalize without rescoring."
+    }
+  ]
+}

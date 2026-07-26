@@ -61,16 +61,16 @@ def main():
     # ---------------- DELIVERY ----------------
     del_folds = [0, 1, 2, 3, 4]
     raw_del = _predict_folds("del", canon, smi, del_folds, tokenizer, encoder, device)
-    ref_full = pd.read_csv(DEL_FULL_REF, usecols=[f"raw_cv_{c}" for c in del_folds] + ["score_mean"])
-    ref_no8 = pd.read_csv(DEL_NO8_REF, usecols=[f"raw_cv_{c}" for c in del_folds] + ["score_mean"])
-    pct_full = _percentile_vs_ref(raw_del, ref_full, "raw_cv_{}", del_folds)
-    pct_no8 = _percentile_vs_ref(raw_del, ref_no8, "raw_cv_{}", del_folds)
+    ref_full = pd.read_csv(DEL_FULL_REF, usecols=[f"del_raw_cv_{c}" for c in del_folds] + ["del_pct_mean"])
+    ref_no8 = pd.read_csv(DEL_NO8_REF, usecols=[f"del_raw_cv_{c}" for c in del_folds] + ["del_pct_mean"])
+    pct_full = _percentile_vs_ref(raw_del, ref_full, "del_raw_cv_{}", del_folds)
+    pct_no8 = _percentile_vs_ref(raw_del, ref_no8, "del_raw_cv_{}", del_folds)
     full_mat = np.column_stack([pct_full[c] for c in del_folds])
     no8_mat = np.column_stack([pct_no8[c] for c in del_folds])
     full_mean, no8_mean = full_mat.mean(axis=1), no8_mat.mean(axis=1)
 
-    lib_full_sorted = np.sort(ref_full["score_mean"].to_numpy())[::-1]
-    lib_no8_sorted = np.sort(ref_no8["score_mean"].to_numpy())[::-1]
+    lib_full_sorted = np.sort(ref_full["del_pct_mean"].to_numpy())[::-1]
+    lib_no8_sorted = np.sort(ref_no8["del_pct_mean"].to_numpy())[::-1]
     N_full, N_no8 = len(lib_full_sorted), len(lib_no8_sorted)
     rank_full = np.searchsorted(-lib_full_sorted, -full_mean, side="left") + 1
     rank_no8 = np.searchsorted(-lib_no8_sorted, -no8_mean, side="left") + 1
@@ -90,8 +90,8 @@ def main():
     tox_folds = [0, 2, 3, 4]
     viab = _predict_folds("tox", canon, smi, tox_folds, tokenizer, encoder, device, reg_arm=True,
                           n_tails_by_smiles=n_tails_map)
-    ref_tox = pd.read_csv(TOX_REF, usecols=[f"cv_{c}" for c in tox_folds])
-    tox_pct = _percentile_vs_ref(viab, ref_tox, "cv_{}", tox_folds)
+    ref_tox = pd.read_csv(TOX_REF, usecols=[f"tox_cv_{c}" for c in tox_folds])
+    tox_pct = _percentile_vs_ref(viab, ref_tox, "tox_cv_{}", tox_folds)
     viab_mat = np.column_stack([viab[c] for c in tox_folds])
     tpct_mat = np.column_stack([tox_pct[c] for c in tox_folds])
     tox_out = pd.DataFrame({"lipid_id": names, "tier": tiers, "smiles": canon,

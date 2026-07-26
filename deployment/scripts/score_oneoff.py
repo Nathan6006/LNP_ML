@@ -18,7 +18,7 @@ import pandas as pd
 import xgboost as xgb
 
 import screen_features as sf
-from config import DEPLOY_ROOT, RESULTS_DIR
+from config import DEPLOY_ROOT, RESULTS_DIR, SCREEN_SCORES_W8, models_root
 from model_common import load_encoder, model_dir_name, pick_device
 from ranking_common import canonicalize_smiles, mode_to_target
 from screen import base_cols_from_extra, load_fold_model
@@ -33,8 +33,8 @@ LIPIDS = [
     ("EtOHKK-c(SVSC)2-u(Ole)", "O=C(NC(C(NC(C(C)C)C(NC(C(NC(CCCCN1)C(NC(C(NCCO)=O)CCCCN)=O)=O)CO)=O)=O)CO)C(CSSCC(NC(CCCCCCC/C=C\\CCCCCCCC)=O)C(NC(CO)C(NC(C(NC(CO)C1=O)=O)C(C)C)=O)=O)NC(CCCCCCC/C=C\\CCCCCCCC)=O"),
 ]
 
-MODEL_ROOT = os.path.join(DEPLOY_ROOT, "del", "crossval_splits", "del_deploy_B")  # FULL-feature models
-LIB_REF = os.path.join(RESULTS_DIR, "del_screen_scores_old.csv")                  # full-model library screen
+MODEL_ROOT = models_root("del")  # exported per-fold models (md5-identical to the split-tree copies)
+LIB_REF = SCREEN_SCORES_W8                                                        # merged-library screen
 OUT = os.path.join(RESULTS_DIR, "oneoff_lipids_scores.csv")
 
 
@@ -49,7 +49,7 @@ def main():
 
     folds = []
     for cv in range(5):
-        mdir = os.path.join(MODEL_ROOT, f"fold_{cv}", model_dir_name(cv))
+        mdir = os.path.join(MODEL_ROOT, model_dir_name(cv))
         folds.append((cv, load_fold_model(mdir, target, mode)))
     print(f"Loaded {len(folds)} FULL-feature folds from {MODEL_ROOT}")
 
@@ -74,8 +74,8 @@ def main():
         raw[cv] = booster.predict(xgb.DMatrix(X), iteration_range=(0, best_iter + 1))
 
     # Percentile each lipid's fold raw score against the full library's raw_cv_{cv} distribution.
-    ref = pd.read_csv(LIB_REF, usecols=[f"raw_cv_{cv}" for cv in range(5)])
-    sorted_ref = {cv: np.sort(ref[f"raw_cv_{cv}"].to_numpy()) for cv in range(5)}
+    ref = pd.read_csv(LIB_REF, usecols=[f"del_raw_cv_{cv}" for cv in range(5)])
+    sorted_ref = {cv: np.sort(ref[f"del_raw_cv_{cv}"].to_numpy()) for cv in range(5)}
     N = len(ref)
     pct = np.empty((len(LIPIDS), 5), dtype=np.float64)
     for j, cv in enumerate(range(5)):

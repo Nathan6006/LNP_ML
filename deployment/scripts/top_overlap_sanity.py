@@ -19,21 +19,21 @@ import os
 import numpy as np
 import pandas as pd
 
-from config import RESULTS_DIR, mode_dir
+from config import RESULTS_DIR, SCREEN_SCORES_W8, mode_dir
 
 
 def main():
     ap = argparse.ArgumentParser()
-    ap.add_argument("--scores", default=os.path.join(RESULTS_DIR, "del_screen_scores.csv"))
+    ap.add_argument("--scores", default=SCREEN_SCORES_W8)
     ap.add_argument("--out", default=os.path.join(mode_dir("del"), "top_overlap_sanity.csv"))
     ap.add_argument("--tops", type=int, nargs="+", default=[50, 100, 500, 1000])
     args = ap.parse_args()
 
     df = pd.read_csv(args.scores)
-    raw_cols = sorted([c for c in df.columns if c.startswith("raw_cv_")],
+    raw_cols = sorted([c for c in df.columns if c.startswith("del_raw_cv_")],
                       key=lambda c: int(c.rsplit("_", 1)[1]))
     if not raw_cols:  # fall back to cv_* if a run kept only percentile columns
-        raw_cols = sorted([c for c in df.columns if c.startswith("cv_")],
+        raw_cols = sorted([c for c in df.columns if c.startswith("del_pct_cv_")],
                           key=lambda c: int(c.rsplit("_", 1)[1]))
     print(f"{len(df)} candidates | fold score columns: {raw_cols}")
 

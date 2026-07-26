@@ -30,7 +30,7 @@ import pandas as pd
 from tqdm import tqdm
 
 import screen_features as sf
-from config import DATA_FILES, DEPLOY_ROOT, LIBRARY_FEATURES
+from config import DATA_FILES, DEPLOY_ROOT, LIBRARY_FEATURES, REPO_ROOT
 from ranking_common import adjust_col_types, canonicalize_smiles, mode_to_target
 
 
@@ -61,14 +61,17 @@ def emit_cols(mode, data_dir):
 
 def main():
     ap = argparse.ArgumentParser(description="Precompute the full deployment feature block into the library.")
-    ap.add_argument("--library", default=os.path.join(DEPLOY_ROOT, "lipid_library.csv"))
+    ap.add_argument("--library",
+                    default=os.path.join(REPO_ROOT, "candidate_library", "library", "eco_library.parquet"),
+                    help="Library definition (.parquet or .csv) with lipid_id + smiles + fragment cols.")
     ap.add_argument("--data_dir", default=DEPLOY_ROOT, help="Where the training CSVs live (for modal).")
     ap.add_argument("--out", default=LIBRARY_FEATURES)
     ap.add_argument("--chunk", type=int, default=20000)
     ap.add_argument("--limit", type=int, default=0, help="Only process the first N rows (smoke test).")
     args = ap.parse_args()
 
-    lib = pd.read_csv(args.library)
+    lib = (pd.read_parquet(args.library) if args.library.endswith(".parquet")
+           else pd.read_csv(args.library))
     if args.limit:
         lib = lib.head(args.limit).copy()
     print(f"Library: {len(lib)} rows from {args.library}")

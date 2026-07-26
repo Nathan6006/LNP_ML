@@ -11,7 +11,9 @@ deployment/results/*.csv
 !deployment/results/del_dead_folds.csv
 !deployment/results/tox_dead_folds.csv
 deployment/results/scenarios/
+# derived from the tracked candidate_library/**/eco_library.parquet files
 deployment/lipid_library_features.csv
+deployment/lipid_status.csv
 results/screen/
 
 # large library artifacts (parquets ARE tracked; the CSV projections are not)
@@ -27,6 +29,5 @@ new_data/crossval_splits/
 # leading slash anchors to repo root -- do NOT match results_web_app/vendor/ (shipped RDKit wasm)
 /vendor/
 
-# v2 scratch dir being merged into deployment/ — temporary until Phase 2/3 of the cleanup
-deployment_results_full/
+# migration staging dir (merge_v1_v2.py writes here before promoting)
 deployment/_merged_staging/

@@ -26,7 +26,9 @@ from config import DEPLOY_ROOT, RESULTS_DIR  # noqa: E402
 
 W8 = os.path.join(RESULTS_DIR, "screen_scores_w8.csv")
 NO8 = os.path.join(RESULTS_DIR, "screen_scores_no8.csv")
-LOSSLESS = {f"del_raw_cv_{i}" for i in range(5)} | {"tox_cv_0", "tox_cv_2", "tox_cv_3", "tox_cv_4"}
+LOSSLESS = ({f"del_raw_cv_{i}" for i in range(5)}
+            | {"tox_cv_0", "tox_cv_2", "tox_cv_3", "tox_cv_4"}
+            | {"tox_viability_mean", "tox_viability_std"})
 
 
 def is8(lid):

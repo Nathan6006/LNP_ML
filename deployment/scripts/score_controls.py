@@ -23,7 +23,7 @@ import pandas as pd
 import xgboost as xgb
 
 import screen_features as sf
-from config import DEPLOY_ROOT, RESULTS_DIR, models_root
+from config import DEPLOY_ROOT, RESULTS_DIR, SCREEN_SCORES_NO8, SCREEN_SCORES_W8, models_root
 from model_common import load_encoder, model_dir_name, pick_device
 from ranking_common import canonicalize_smiles, mode_to_target
 from screen import base_cols_from_extra, load_fold_model
@@ -37,9 +37,11 @@ CONTROLS = [
     ("ECO",   "NCCN(CCC(NCCNC(C(CS)NC(CCCCCCC/C=C\\CCCCCCCC)=O)=O)=O)CCC(NCCNC(C(CS)NC(CCCCCCC/C=C\\CCCCCCCC)=O)=O)=O"),
 ]
 
-DEL_FULL_REF = os.path.join(RESULTS_DIR, "del_screen_scores.csv")       # WITH 8-tailed lipids
-DEL_NO8_REF = os.path.join(RESULTS_DIR, "del_screen_scores_no8.csv")    # WITHOUT 8-tailed lipids
-TOX_REF = os.path.join(RESULTS_DIR, "tox_screen_scores.csv")
+# Consolidated merged-library score files. w8 = WITH 8-tailed lipids, no8 = WITHOUT.
+# Both carry the delivery raw/percentile block and the tox block, so tox reads from w8.
+DEL_FULL_REF = SCREEN_SCORES_W8
+DEL_NO8_REF = SCREEN_SCORES_NO8
+TOX_REF = SCREEN_SCORES_W8
 OUT_DEL = os.path.join(RESULTS_DIR, "control_lipids_del.csv")
 OUT_TOX = os.path.join(RESULTS_DIR, "control_lipids_tox.csv")
 
@@ -107,11 +109,11 @@ def main():
     del_folds = [0, 1, 2, 3, 4]
     raw_del = _predict_folds("del", canon, smi, del_folds, tokenizer, encoder, device)
 
-    ref_full = pd.read_csv(DEL_FULL_REF, usecols=[f"raw_cv_{c}" for c in del_folds] + ["score_mean"])
-    ref_no8 = pd.read_csv(DEL_NO8_REF, usecols=[f"raw_cv_{c}" for c in del_folds] + ["score_mean"])
+    ref_full = pd.read_csv(DEL_FULL_REF, usecols=[f"del_raw_cv_{c}" for c in del_folds] + ["del_pct_mean"])
+    ref_no8 = pd.read_csv(DEL_NO8_REF, usecols=[f"del_raw_cv_{c}" for c in del_folds] + ["del_pct_mean"])
 
-    pct_full = _percentile_vs_ref(raw_del, ref_full, "raw_cv_{}", del_folds)
-    pct_no8 = _percentile_vs_ref(raw_del, ref_no8, "raw_cv_{}", del_folds)
+    pct_full = _percentile_vs_ref(raw_del, ref_full, "del_raw_cv_{}", del_folds)
+    pct_no8 = _percentile_vs_ref(raw_del, ref_no8, "del_raw_cv_{}", del_folds)
 
     full_mat = np.column_stack([pct_full[c] for c in del_folds])   # [n, 5]
     no8_mat = np.column_stack([pct_no8[c] for c in del_folds])
@@ -119,8 +121,8 @@ def main():
     no8_mean, no8_std = no8_mat.mean(axis=1), no8_mat.std(axis=1)
 
     # RANK of the control's ensemble percentile-mean within the library's score_mean distribution.
-    lib_full_sorted = np.sort(ref_full["score_mean"].to_numpy())[::-1]  # desc: rank 1 = best
-    lib_no8_sorted = np.sort(ref_no8["score_mean"].to_numpy())[::-1]
+    lib_full_sorted = np.sort(ref_full["del_pct_mean"].to_numpy())[::-1]  # desc: rank 1 = best
+    lib_no8_sorted = np.sort(ref_no8["del_pct_mean"].to_numpy())[::-1]
     N_full, N_no8 = len(lib_full_sorted), len(lib_no8_sorted)
     rank_full = np.searchsorted(-lib_full_sorted, -full_mean, side="left") + 1
     rank_no8 = np.searchsorted(-lib_no8_sorted, -no8_mean, side="left") + 1
@@ -141,8 +143,8 @@ def main():
     # ============================ TOXICITY ============================
     tox_folds = [0, 2, 3, 4]  # fold 1 dead/missing
     viab = _predict_folds("tox", canon, smi, tox_folds, tokenizer, encoder, device, reg_arm=True)
-    ref_tox = pd.read_csv(TOX_REF, usecols=[f"cv_{c}" for c in tox_folds])
-    tox_pct = _percentile_vs_ref(viab, ref_tox, "cv_{}", tox_folds)
+    ref_tox = pd.read_csv(TOX_REF, usecols=[f"tox_cv_{c}" for c in tox_folds])
+    tox_pct = _percentile_vs_ref(viab, ref_tox, "tox_cv_{}", tox_folds)
 
     viab_mat = np.column_stack([viab[c] for c in tox_folds])
     tpct_mat = np.column_stack([tox_pct[c] for c in tox_folds])
