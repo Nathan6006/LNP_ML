@@ -35,7 +35,7 @@ filter.
   viability range far more sharply); the drawer's Viability hero stat follows the
   toggle too. **Delivery is always shown as a percentile.**
 - **Toxicity panel** (in the Candidates / Condensed / Components drawers) — from
-  a **separate 4-fold toxicity screen** (`deployment_results_full/tox_score_full_w_8.csv`;
+  a **separate 4-fold toxicity screen** (the tox block of `deployment/results/screen_scores_w8.csv`;
   the model's 5th fold trained dead and is absent, so folds are 0/2/3/4). Shows
   **mean viability + std**, **per-fold viability**, **mean viability percentile +
   std**, and **per-fold percentile**. Viability is the raw predicted cell
@@ -239,14 +239,14 @@ python build_data.py --top 2500
 ```
 
 Run from `results_web_app/build/`. Reads the **merged library** screen results in
-`../../deployment_results_full/` (old deployment library **+** the new cysteine
-additions, re-percentiled over the union): the delivery scores
-`del_score_full_w_8.csv` (**444,636** lipids, 8-tailed IN) and
-`del_score_full_no_8.csv` (**334,948**, 8-tailed OUT), plus the toxicity scores
-`tox_score_full_w_8.csv` (viability is scenario-independent; folds 0/2/3/4).
-Fragment/feature columns come from the **union** of
-`../../deployment/lipid_library_features.csv` and
-`../../deployment_results_full/library_2_features.csv` — with **n_tails overridden
+`../../deployment/results/` (original deployment library **+** the cysteine
+additions, re-percentiled over the union): `screen_scores_w8.csv` (**444,636**
+lipids, 8-tailed IN) and `screen_scores_no8.csv` (**334,948**, 8-tailed OUT).
+Each file carries the delivery raw + percentile block **and** the toxicity block
+(`tox_viability_*`, `tox_cv_{0,2,3,4}` — viability is scenario-independent), so
+there is no separate tox file. Note these score files **do not carry `smiles`**;
+fragment/feature columns *and* `smiles` come from the single merged
+`../../deployment/lipid_library_features.csv` — with **n_tails overridden
 by the is8() rule** (head+linker both end `K` and an `s2` tail ⇒ 8 tails), matching
 how the score files were split. Also reads `../../candidate_library/components.csv`
 for fragment SMILES/names, filling in the new cysteine fragments from
@@ -279,7 +279,7 @@ cd results_web_app/build && python condense.py
 
 ## What the numbers mean
 
-- **Source:** the **merged library** `deployment_results_full/del_score_full_*.csv`
+- **Source:** the **merged library** `deployment/results/screen_scores_{w8,no8}.csv`
   — the old deployment library **+** the new cysteine additions, re-percentiled over
   the union (**444,636** candidates with 8-tailed, **334,948** without). The
   Candidates tab shows the **top 2500 by delivery percentile** (`score_mean`); the
@@ -293,7 +293,7 @@ cd results_web_app/build && python condense.py
 - **Screening condition** (helper lipid, molar ratio, cargo, cell line, dose) is
   the single modal formulation every candidate was scored under — held constant.
 - **Viability (toxicity):** from a **separate 4-fold toxicity screen**
-  (`deployment_results_full/tox_score_full_w_8.csv`; the 5th fold trained dead and is
+  (tox block of `deployment/results/screen_scores_w8.csv`; the 5th fold trained dead and is
   absent, so the folds are 0/2/3/4). **Mean viability** is the raw predicted cell viability (0–1,
   higher = safer), the mean of the 4 folds — scenario-independent. **Viability
   percentile** ranks each fold's viability over the active lipid pool (recomputed

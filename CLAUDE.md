@@ -59,6 +59,37 @@ DUET-LNP predicts two properties of lipid nanoparticles (LNPs): **transfection e
 - `scripts_old/` — archived Chemprop-era code (no longer used in main pipeline)
 - `charts/` — publication figure scripts and output PNGs
 
+> **NOTE (2026-07-26)**: §§1–6 below describe the older `scripts_ranking/`-era architecture and several
+> directories listed above (`data/`, `smiles/`, `scripts_old/`, `charts/`, `zlibrary/`) **no longer exist**.
+> The §7 worklog is the current source of truth. The active pipeline is `scripts/` (see
+> `PROJECT_OVERVIEW.md`) and `deployment/` for screening.
+
+### Deployment — unified screen (current, post 2026-07-26 merge)
+
+`deployment/` is self-contained; the old `deployment_results_full/` (v2) has been folded in.
+
+| Path | Purpose |
+|---|---|
+| `deployment/scripts/` | The only home of the screen pipeline. `config.py` holds every path constant. |
+| `deployment/lipid_library_features.csv` | Merged library, 448,700 × 74. `library_gen` tags the generation. **Source of truth for `lipid_id → smiles`.** |
+| `deployment/lipid_status.csv` | `lipid_id,is_dead` for the whole library (4,064 dead / 444,636 alive). |
+| `deployment/library_manifest.json` | Per-generation counts + provenance + the `n_tails` known issue. |
+| `deployment/cache/` | One embedding pickle per model, covering all generations. Do not prune. |
+| `deployment/results/screen_scores_w8.csv` | 444,636 rows — delivery raw + percentiles (all lipids) + tox block. |
+| `deployment/results/screen_scores_no8.csv` | 334,948 rows — same, 8-tailed excluded, delivery percentiles re-ranked. |
+| `deployment/{del,tox}/models/` | The exported per-fold models `screen.py` reads. |
+| `deployment/training_runs/` | Training provenance (gitignored — **on disk only**). |
+
+**Adding a new library generation** (no monkeypatching, no scratch dir):
+```bash
+cd deployment/scripts
+python build_library_features.py --library ../../candidate_library/library_N/eco_library.parquet --out /tmp/libN.csv
+python merge_library.py --add /tmp/libN.csv --status ../../candidate_library/library_N/eco_library.parquet
+python screen.py --mode del && python screen.py --mode tox
+python build_scenarios.py          # re-percentile the WHOLE merged library
+cd ../../results_web_app/build && python build_data.py
+```
+
 ---
 
 ## 3. Commands
@@ -334,6 +365,86 @@ python sanity_checks.py
 ## 7. Worklog
 
 *(Newest first)*
+
+### 2026-07-26 — Storage cleanup: deployment v1+v2 MERGED into one folder; repo 14 GB → 4.8 GB
+
+**Why**: repo had grown to 14 GB (6.8 GB `.git` + 7.2 GB tree). Two root causes: (1) **no `.gitignore`
+existed**, so model checkpoints, split CSVs, and — twice — the multi-GB embedding pickles got committed;
+(2) the deployment screen lived as **two half-overlapping copies** — `deployment/` (v1, original 360,640
+library) and `deployment_results_full/` (v2, the 88,060 cysteine expansion), where v2 reused v1's code by
+`os.chdir` + monkeypatching, read v1's results as inputs, and kept a second embedding cache.
+
+**Unified layout** — `deployment_results_full/` no longer exists:
+```
+deployment/
+├── lipid_library_features.csv   MERGED 448,700 × 74 (73 + new `library_gen` col; gen1 360,640 + gen2 88,060, 0 collisions)
+├── lipid_status.csv             lipid_id,is_dead for all 448,700 (4,064 dead / 444,636 alive)
+├── library_manifest.json        per-generation provenance + the n_tails known-issue note
+├── cache/                       ONE pickle per model: 459,389 ChemBERTa / 465,819 MolGpKa keys
+├── results/screen_scores_w8.csv    444,636 rows ┐ del raw+percentile block AND tox block;
+├── results/screen_scores_no8.csv   334,948 rows ┘ NO smiles (features file is the source of truth)
+├── training_runs/               del/tox/ablation crossval_splits consolidated here (gitignored)
+└── logs/                        the v2 screen + build-features logs
+```
+
+**Score-file consolidation**: 4 score files + `shortlist.csv` (734 MB) → 2 files (274 MB). One file per
+8-tail scenario, so the web app's existing `{"": …, "_no8": …}` loop needed only a rename. **Percentiles
+are COPIED bit-exact from the screen output, not recomputed** — recomputing drifts 1 ULP (1.4e-14) from
+pandas' original write, which was enough to flip 2-dp display rounding and re-order near-ties. All numeric
+columns written at full `repr` precision; a `%.6g` first attempt was rejected for exactly this reason.
+
+**New/changed scripts** (`deployment/scripts/`): `merge_library.py` (append a future generation),
+`build_scenarios.py` (re-percentile; replaces `build_w_no_8.py` + `finalize.py`), `merge_v1_v2.py`
+(one-shot migration), `verify_merge.py` (the hard gate). `config.py` centralizes
+`LIPID_STATUS`/`SCREEN_SCORES_{W8,NO8}`/`LIBRARY_MANIFEST`/`TRAINING_RUNS`/`splits_root()`, and keeps
+`ECO_FULL = LIPID_STATUS` as a back-compat alias so `screen.py` needed zero edits.
+**Retired**: `screen_merge.py` (shortlist *is* the join now), `condense.py`'s CLI (output read by nothing),
+`run_screen.py`/`build_w_no_8.py`/`finalize.py`. **`finalize.py` was an active hazard** — it pruned the
+cache to gen-2 SMILES only, which would have destroyed 371,869 v1 entries.
+**Live bugs fixed**: `ad_filter.py` + `score_oneoff.py` defaulted to `del_screen_scores_old.csv` (never
+existed); `build_library_features.py` defaulted to a nonexistent `deployment/lipid_library.csv`;
+`score_oneoff.py` read models from the split tree instead of the exported `models/` dir.
+
+**KNOWN TRAP — do not "fix"**: the two library generations **disagree on `n_tails` for 8-tailed lipids**
+(gen1 = 8, gen2 = 4, same for `tox__Num_tails`). The gen-2 tox scores on disk were produced with 4;
+`build_data.py` overrides at display time via `is8()`. `merge_v1_v2.py`/`verify_merge.py` **assert the
+divergence is still present** rather than normalizing it — normalizing would silently decouple the
+features file from the scores. Recorded in `library_manifest.json`.
+
+**Verification** (`verify_merge.py`, all PASS): delivery `raw_cv_*` and tox viability/cv match the
+pre-merge v1 originals, v2 finals, AND v2 intermediates at **max abs diff 0.0**; percentiles reproduce to
+atol 1e-6; cache covers all 444,636 alive canonical SMILES with **0 misses** (14,753 surplus keys are the
+training/control molecules — deliberately NOT pruned, they keep `train*.py`/`score_controls.py` warm).
+End-to-end: **10 of 12 web app JSONs rebuild byte-identical**; the other 2 differ only in provenance
+strings plus ChemBERTa UMAP `coords`. That coord shift is **not** from the merge — input embeddings were
+verified identical (0/2500 differ), Morgan UMAP and all cluster labels are identical, and it reproduces
+run-to-run today; it is a `umap-learn` 0.5.9 → 0.5.9.post2 upgrade since the Jul 21 build.
+
+**Deletions**: v1 score CSVs + `shortlist.csv` + condensed CSVs; all of `deployment_results_full/`;
+`models_noSize_bak` (md5-identical to the split-tree copy, 0 refs); `eco_library_full.csv` (170 MB — the
+tracked parquet holds all 19 cols with bit-identical `is_dead`) and the two `lipid_library.csv`
+projections; superseded `results/screen/`; 6 of 9 unreferenced `07xx_lnpdb` sweeps (**3 newest kept**);
+`del_cb_molgpka_B` 13-variant sweep; lab bulk data (`del_lab`/`tox_lab` `new_data` were md5-identical
+copies). `del_deploy_noSize_B` fold CSVs deleted (md5-identical to `del_deploy_B`'s) — README left
+pointing at the source; models kept. **Kept per user: `results/old_tox_tests/` and all `results/LiON_paper/`
+checkpoints.**
+
+**Git**: added `.gitignore` (caches, screen outputs, training runs, `/vendor/`, `__pycache__`, `.DS_Store`).
+Note the leading slash on `/vendor/` — an unanchored `vendor/` also matched `results_web_app/vendor/` and
+would have untracked the shipped RDKit wasm. Then `git-filter-repo` stripped history paths **absent from
+HEAD** (old `data/`, `chemprop-master/`, `z_other_models/`, `scripts_pw/`, `smiles/`, `zconfound/`,
+`data_files_del/`, `scripts_old/`, the pre-move `deployment/*/crossval_splits`, `new_data/crossval_splits`,
+and the dead `results/crossval_splits` subdirs). **`.git` 6.8 GB → 256 MB**, all 46 commits preserved.
+`--strip-blobs-bigger-than` was deliberately NOT used: it would have destroyed `RDKit_minimal.wasm`, the 15
+LiON_paper checkpoints, and `eco_library.parquet` (load-bearing now that `eco_library_full.csv` is gone).
+
+**RECOVERY**: the full pre-rewrite history is preserved on origin as tag **`pre-cleanup-2026-07-26`**
+(commit `89ac8f18`). **Do not delete that tag** — it is the only copy of the stripped history. Every commit
+SHA changed, so any other clone / the `claude/distracted-perlman` branch must be re-cloned.
+
+**Result: 14 GB → 4.8 GB** (tree 4.5 GB, `.git` 256 MB). Residual is ~60% embedding cache (2.7 GB), kept
+deliberately. Note `deployment/training_runs/` and `new_data/crossval_splits/` are now **on disk only**
+(gitignored + stripped from history).
 
 ### 2026-07-21 — Web app: Components **condensed-names toggle** + **Visual tab regenerated** on the merged library
 
