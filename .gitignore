@@ -6,8 +6,10 @@ __pycache__/
 deployment/cache/
 *_lab/cache/
 
-# screen outputs — regenerable from models + library
+# screen outputs — regenerable from models + library (dead_folds logs are small, keep tracked)
 deployment/results/*.csv
+!deployment/results/del_dead_folds.csv
+!deployment/results/tox_dead_folds.csv
 deployment/results/scenarios/
 deployment/lipid_library_features.csv
 results/screen/
@@ -22,7 +24,8 @@ new_data/crossval_splits/
 *.bak.csv
 
 # vendored third-party repo (has its own git history; not a submodule)
-vendor/
+# leading slash anchors to repo root -- do NOT match results_web_app/vendor/ (shipped RDKit wasm)
+/vendor/
 
 # v2 scratch dir being merged into deployment/ — temporary until Phase 2/3 of the cleanup
 deployment_results_full/
