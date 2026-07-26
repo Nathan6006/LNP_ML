@@ -34,24 +34,20 @@ def _load_and_rename(path, prefix, mean_name, std_name):
 
 
 def _load_tox(path):
-    """Tox loader that handles BOTH the two-stage champion output (score_mean = tox-score higher=
-    more toxic, plus a viability_mean column for the flag) and the legacy single-arm regression
-    output (score_mean = predicted viability). Returns (df, has_tox_score)."""
+    """Tox loader: the screen reports predicted VIABILITY only (0-1, fold-comparable). Per-fold cv_*
+    are the EXACT per-fold predicted viabilities. Supports the current 'viability_mean' output and the
+    legacy single-arm 'score_mean'=viability output."""
     df = pd.read_csv(path)
     cv_cols = sorted([c for c in df.columns if c.startswith("cv_")], key=lambda c: int(c.split("_")[1]))
     ren = {c: f"tox_{c}" for c in cv_cols}
-    if "viability_mean" in df.columns:  # two-stage champion
-        ren.update({"score_mean": "tox_score_mean", "score_std": "tox_score_std",
-                    "viability_mean": "tox_viability_mean", "viability_std": "tox_viability_std"})
-        df = df.rename(columns=ren)
-        keep = (["lipid_id", "smiles", "tox_score_mean", "tox_score_std",
-                 "tox_viability_mean", "tox_viability_std"] + [f"tox_{c}" for c in cv_cols])
-        return df[keep], True
-    ren.update({"score_mean": "tox_viability_mean", "score_std": "tox_viability_std"})  # legacy
+    if "viability_mean" in df.columns:
+        ren.update({"viability_mean": "tox_viability_mean", "viability_std": "tox_viability_std"})
+    else:  # legacy single-arm regression: score_mean was the predicted viability
+        ren.update({"score_mean": "tox_viability_mean", "score_std": "tox_viability_std"})
     df = df.rename(columns=ren)
     keep = (["lipid_id", "smiles", "tox_viability_mean", "tox_viability_std"]
             + [f"tox_{c}" for c in cv_cols])
-    return df[keep], False
+    return df[keep]
 
 
 def main():
@@ -62,7 +58,7 @@ def main():
     args = ap.parse_args()
 
     dl = _load_and_rename(args.del_scores, "del", "del_score_mean", "del_score_std")
-    tx, has_tox_score = _load_tox(args.tox_scores)
+    tx = _load_tox(args.tox_scores)
 
     # Left-join tox onto delivery (delivery is the primary, complete ranking). Drop tox's smiles
     # to avoid a duplicate column.
@@ -73,11 +69,11 @@ def main():
                     key=lambda c: int(c.rsplit("_", 1)[1]))
     tox_cv = sorted([c for c in merged.columns if c.startswith("tox_cv_")],
                     key=lambda c: int(c.rsplit("_", 1)[1]))
-    # Champion two-stage: tox_score_mean (higher = more toxic) is the recommended relative down-rank
-    # signal; tox_viability_mean drives the (unreliable, saturating) absolute likely_toxic flag.
-    tox_score_cols = ["tox_score_mean", "tox_score_std"] if has_tox_score else []
-    order = (["lipid_id", "del_score_mean", "del_score_std", "likely_toxic", "smiles"]
-             + tox_score_cols + ["tox_viability_mean", "tox_viability_std"] + del_cv + tox_cv)
+    # Tox is reported as predicted viability (0-1, lower = more toxic); tox_viability_mean is the
+    # relative down-rank signal and drives the (saturating) absolute likely_toxic flag. tox_cv_* are
+    # the per-fold exact viabilities.
+    order = (["lipid_id", "del_score_mean", "del_score_std", "likely_toxic", "smiles",
+              "tox_viability_mean", "tox_viability_std"] + del_cv + tox_cv)
     merged = merged[order].sort_values("del_score_mean", ascending=False).reset_index(drop=True)
 
     os.makedirs(os.path.dirname(args.out), exist_ok=True)

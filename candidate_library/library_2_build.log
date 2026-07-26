@@ -1,0 +1,45 @@
+starters=7 heads=26 linkers=40 tails=16
+expected library size = 116,480
+built 640 linker+tail subtrees in 0.3s
+  1/26 heads  (4,480 molecules, 16s)
+  2/26 heads  (8,960 molecules, 17s)
+  3/26 heads  (13,440 molecules, 18s)
+  4/26 heads  (17,920 molecules, 18s)
+  5/26 heads  (22,400 molecules, 19s)
+  6/26 heads  (26,880 molecules, 19s)
+  7/26 heads  (31,360 molecules, 19s)
+  8/26 heads  (35,840 molecules, 33s)
+  9/26 heads  (40,320 molecules, 34s)
+  10/26 heads  (44,800 molecules, 35s)
+  11/26 heads  (49,280 molecules, 35s)
+  12/26 heads  (53,760 molecules, 35s)
+  13/26 heads  (58,240 molecules, 36s)
+  14/26 heads  (62,720 molecules, 36s)
+  15/26 heads  (67,200 molecules, 49s)
+  16/26 heads  (71,680 molecules, 50s)
+  17/26 heads  (76,160 molecules, 52s)
+  18/26 heads  (80,640 molecules, 53s)
+  19/26 heads  (85,120 molecules, 54s)
+  20/26 heads  (89,600 molecules, 54s)
+  21/26 heads  (94,080 molecules, 54s)
+  22/26 heads  (98,560 molecules, 64s)
+  23/26 heads  (103,040 molecules, 65s)
+  24/26 heads  (107,520 molecules, 66s)
+  25/26 heads  (112,000 molecules, 67s)
+  26/26 heads  (116,480 molecules, 68s)
+assembled 116,480 molecules in 68s (1702/s)
+
+VALIDATION
+  OK  count: 116,480 built, 116,480 unique, 116,480 expected
+  OK  stereochemistry: cis-bond count matches n_tails x tail unsaturation for all molecules
+  OK  no residual attachment points
+  --  1,280 molecules (1.1%) have NO basic nitrogen (is_dead=True)
+  --  24,960 (21.4%) have no aliphatic amine
+  --  MW: min 483 / median 1799 / max 2869
+  --  n_tails: {2: 61152, 4: 55328}
+
+dedup: removed 33,600 molecules already present in lipid_library.csv  (116,480 -> 82,880)
+
+wrote library_2/eco_library.parquet  (82,880 molecules)
+wrote library_2/lipid_library.csv  (82,880 molecules, 8 cols)
+wrote library_2/library_manifest.json

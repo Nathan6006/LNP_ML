@@ -24,22 +24,78 @@
     </div>
     <nav class="tabs" id="tabs">
       <button class="tab active" data-view="candidates">Candidates</button>
+      <button class="tab" data-view="condensed">Condensed</button>
       <button class="tab" data-view="components">Components</button>
       <button class="tab" data-view="chemotypes">Chemotypes</button>
+      <button class="tab" data-view="visual">Visual</button>
     </nav>
     <div class="switch8" title="Include or exclude 8-tailed lipids from the scores">
       <span class="switch8-label">8-tailed lipids</span>
-      <button type="button" id="tog8" class="switch8-track" role="switch" aria-checked="true" aria-label="Include 8-tailed lipids">
+      <button type="button" id="tog8" class="switch8-track" role="switch" aria-checked="false" aria-label="Include 8-tailed lipids">
         <span class="switch8-thumb"></span>
       </button>
-      <span class="switch8-state" id="tog8-state">Included</span>
-    </div>
-    <div class="search-wrap">
-      <input id="search" type="search" placeholder="Search…" autocomplete="off">
+      <span class="switch8-state excluded" id="tog8-state">Excluded</span>
     </div>
   </header>
 
   <main>
+    <!-- Search moved out of the header: sits at the top of the page for the
+         views where it applies (Candidates / Condensed / Components). -->
+    <div class="page-tools" id="page-tools">
+      <div class="search-wrap">
+        <input id="search" type="search" placeholder="Search…" autocomplete="off">
+      </div>
+
+      <!-- Component / chemotype filter (visibility only — never touches scores) -->
+      <div class="filter-wrap" id="filter-wrap">
+        <button type="button" id="filter-btn" class="filter-btn" aria-expanded="false" aria-haspopup="true">
+          <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M3 5h18M6 12h12M10 19h4"/></svg>
+          Filter
+          <span id="filter-count" class="filter-count" hidden>0</span>
+        </button>
+        <div id="filter-panel" class="filter-panel" hidden role="dialog" aria-label="Filter candidates">
+          <div class="filter-head">
+            <span class="filter-title">Filter candidates</span>
+            <div class="segmented filter-mode" id="filter-mode" role="group" aria-label="Filter mode">
+              <button type="button" class="seg active" data-fmode="exclude">Exclude</button>
+              <button type="button" class="seg" data-fmode="include">Include</button>
+            </div>
+          </div>
+          <p class="filter-hint" id="filter-mode-hint"></p>
+          <div class="filter-scroll">
+            <div class="filter-section">
+              <div class="filter-section-lbl">Components</div>
+              <div id="filter-accordions" class="filter-accordions"></div>
+            </div>
+            <div class="filter-section">
+              <div class="filter-section-lbl">Chemotype caps <span class="filter-section-sub">always “up to”, any mode</span></div>
+              <div id="filter-sliders" class="filter-sliders"></div>
+            </div>
+          </div>
+          <div class="filter-foot">
+            <button type="button" id="filter-clear" class="filter-clear">Clear all</button>
+            <span id="filter-summary" class="filter-summary"></span>
+          </div>
+        </div>
+      </div>
+
+      <div class="value-toggle" title="Show the Viability column as the raw predicted cell viability (0–1) or its within-library percentile (0–100)">
+        <span class="value-toggle-label">Viability</span>
+        <div class="segmented" id="valmode" role="group" aria-label="Viability value mode">
+          <button type="button" class="seg active" data-valmode="raw">Raw</button>
+          <button type="button" class="seg" data-valmode="pct">Percentile</button>
+        </div>
+      </div>
+
+      <div class="value-toggle" id="compmode-wrap" hidden title="Group fragments by their raw name, or by the condensed canonical name that merges positional isomers of the same building blocks (e.g. RSSK / SRSK / SSRK → RS2K)">
+        <span class="value-toggle-label">Names</span>
+        <div class="segmented" id="compmode" role="group" aria-label="Component name mode">
+          <button type="button" class="seg active" data-compmode="raw">Raw</button>
+          <button type="button" class="seg" data-compmode="condensed">Condensed</button>
+        </div>
+      </div>
+    </div>
+
     <!-- Candidates view -->
     <section id="view-candidates" class="view">
       <div class="table-meta" id="tablemeta">Loading…</div>
@@ -51,12 +107,38 @@
               <th class="sortable" data-key="lipid_id">Lipid</th>
               <th class="num sortable" data-key="score_mean">Percentile</th>
               <th class="num sortable" data-key="score_std">Std</th>
+              <th class="num sortable" data-key="mean_minus_std" title="Percentile − std across folds">Mean − Std</th>
+              <th class="num sortable" data-key="viab" id="th-cand-viab" title="Mean predicted cell viability (higher = safer); toggle raw ⟷ percentile">Viability</th>
               <th class="num sortable" data-key="n_tails">Tails</th>
+              <th class="sortable" data-key="cluster" title="Butina structural cluster (matches the Visual tab)">Cluster</th>
             </tr>
           </thead>
           <tbody id="tbody"></tbody>
         </table>
         <p id="empty" class="empty" hidden>No matches.</p>
+      </div>
+    </section>
+
+    <!-- Condensed view -->
+    <section id="view-condensed" class="view" hidden>
+      <div class="table-meta" id="condmeta"></div>
+      <div class="table-scroll">
+        <table id="cond-tbl">
+          <thead>
+            <tr>
+              <th class="num sortable" data-cdkey="rank" title="Rank among all lipids (duplicates collapsed)">Rank</th>
+              <th class="sortable" data-cdkey="condensed_id">Condensed lipid</th>
+              <th class="num sortable" data-cdkey="max_score" title="Top member's delivery percentile">Percentile</th>
+              <th class="num sortable" data-cdkey="max_minus_std" title="max(percentile) − std across the group">Max − Std</th>
+              <th class="num sortable" data-cdkey="viab" id="th-cond-viab" title="Top member's mean predicted cell viability (higher = safer); toggle raw ⟷ percentile">Viability</th>
+              <th class="num sortable" data-cdkey="n_variants">Variants</th>
+              <th class="num sortable" data-cdkey="n_tails">Tails</th>
+              <th class="sortable" data-cdkey="cluster" title="Butina cluster of the top member (nearest cluster if not itself a top-2500 candidate)">Cluster</th>
+            </tr>
+          </thead>
+          <tbody id="cond-tbody"></tbody>
+        </table>
+        <p id="cond-empty" class="empty" hidden>No matches.</p>
       </div>
     </section>
 
@@ -75,6 +157,7 @@
               <th class="num sortable" data-ckey="std_rank">Std rank</th>
               <th class="num sortable" data-ckey="avg_score">Avg score</th>
               <th class="num sortable" data-ckey="std_score">Std score</th>
+              <th class="num sortable" data-ckey="viab" id="th-comp-viab" title="Mean predicted cell viability over this fragment's candidates; toggle raw ⟷ percentile">Viability</th>
               <th class="num sortable" data-ckey="top10_pct">% top 10%</th>
             </tr>
           </thead>
@@ -87,9 +170,124 @@
     <!-- Chemotypes view -->
     <section id="view-chemotypes" class="view" hidden>
       <div class="table-meta" id="chemometa"></div>
+      <div class="chemo-tools">
+        <span class="value-toggle-label">Toxicity column</span>
+        <div class="segmented" id="chemo-valmode" role="group" aria-label="Toxicity value mode">
+          <button type="button" class="seg active" data-cvmode="viab">Viability</button>
+          <button type="button" class="seg" data-cvmode="pct">Percentile</button>
+        </div>
+      </div>
       <div id="chemo-accordions" class="accordions"></div>
     </section>
+
+    <!-- Visual view: Pareto trade-off + two UMAP scatters of the top-2500 library -->
+    <section id="view-visual" class="view" hidden>
+
+      <!-- Plot 0 — Delivery vs. viability Pareto front (multi-objective view) -->
+      <div class="vis-block">
+        <div class="vis-controls">
+          <h3 class="vis-heading">Delivery vs. viability — Pareto front</h3>
+          <div class="vis-ctl">
+            <span class="vis-ctl-lbl">Show</span>
+            <div class="segmented" id="par-show" role="group" aria-label="Which points to show">
+              <button type="button" class="seg active" data-show="all">All candidates</button>
+              <button type="button" class="seg" data-show="front">Front only</button>
+            </div>
+          </div>
+          <div class="vis-ctl">
+            <span class="vis-ctl-lbl">Point size</span>
+            <div class="segmented" id="par-size" role="group" aria-label="Point size">
+              <button type="button" class="seg" data-size="2.6">S</button>
+              <button type="button" class="seg active" data-size="3.6">M</button>
+              <button type="button" class="seg" data-size="5">L</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-meta" id="par-meta"></div>
+        <div class="vis-stage" id="par-stage">
+          <canvas id="pareto-canvas"></canvas>
+          <div id="par-legend" class="vis-legend par-legend"></div>
+        </div>
+        <p class="vis-hint">Each point is a candidate: <strong>x = delivery</strong>, <strong>y = predicted viability</strong>, both re-ranked to a percentile within the shown set (the top candidates are all near the library's delivery ceiling). The <strong>Pareto front</strong> (upper-right staircase) is the set of best trade-offs — no other candidate beats a front point on <em>both</em> objectives. Points inside are dominated (still shown, lower priority). Hover for structure · click to open.</p>
+      </div>
+
+      <!-- Plot 1 — Morgan fingerprint UMAP + agglomerative (structural) clusters -->
+      <div class="vis-block">
+        <div class="vis-controls">
+          <h3 class="vis-heading">Morgan fingerprint UMAP</h3>
+          <div class="vis-ctl">
+            <span class="vis-ctl-lbl">Color by</span>
+            <div class="segmented" id="vis-colorby" role="group" aria-label="Color points by">
+              <button type="button" class="seg active" data-mode="score">Transfection</button>
+              <button type="button" class="seg" data-mode="cluster">Structural cluster</button>
+            </div>
+          </div>
+          <div class="vis-ctl">
+            <span class="vis-ctl-lbl">Point size</span>
+            <div class="segmented" id="vis-size" role="group" aria-label="Point size">
+              <button type="button" class="seg" data-size="2.6">S</button>
+              <button type="button" class="seg active" data-size="3.6">M</button>
+              <button type="button" class="seg" data-size="5">L</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-meta" id="vis-meta"></div>
+        <div class="vis-stage" id="vis-stage">
+          <canvas id="umap-canvas"></canvas>
+          <div id="vis-legend" class="vis-legend"></div>
+          <div class="vis-zoom">
+            <button type="button" id="vis-zin" title="Zoom in" aria-label="Zoom in">+</button>
+            <button type="button" id="vis-zout" title="Zoom out" aria-label="Zoom out">−</button>
+            <button type="button" id="vis-zreset" class="vis-zreset" title="Reset zoom" aria-label="Reset zoom">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Plot 2 — ChemBERTa embedding UMAP + k-means clusters -->
+      <div class="vis-block">
+        <div class="vis-controls">
+          <h3 class="vis-heading">ChemBERTa embedding UMAP</h3>
+          <div class="vis-ctl">
+            <span class="vis-ctl-lbl">Color by</span>
+            <div class="segmented" id="vis-colorby2" role="group" aria-label="Color points by">
+              <button type="button" class="seg" data-mode="score">Transfection</button>
+              <button type="button" class="seg active" data-mode="cluster">Embedding cluster</button>
+            </div>
+          </div>
+          <div class="vis-ctl">
+            <span class="vis-ctl-lbl">Point size</span>
+            <div class="segmented" id="vis-size2" role="group" aria-label="Point size">
+              <button type="button" class="seg" data-size="2.6">S</button>
+              <button type="button" class="seg active" data-size="3.6">M</button>
+              <button type="button" class="seg" data-size="5">L</button>
+            </div>
+          </div>
+        </div>
+        <div class="table-meta" id="vis-meta2"></div>
+        <div class="vis-stage" id="vis-stage2">
+          <canvas id="umap-canvas2"></canvas>
+          <div id="vis-legend2" class="vis-legend"></div>
+          <div class="vis-zoom">
+            <button type="button" id="vis-zin2" title="Zoom in" aria-label="Zoom in">+</button>
+            <button type="button" id="vis-zout2" title="Zoom out" aria-label="Zoom out">−</button>
+            <button type="button" id="vis-zreset2" class="vis-zreset" title="Reset zoom" aria-label="Reset zoom">Reset</button>
+          </div>
+        </div>
+      </div>
+
+      <p class="vis-hint">Scroll to zoom · drag to pan · hover a point for its structure · click to open the full candidate.</p>
+    </section>
   </main>
+
+  <!-- Floating hover card for the UMAP scatter -->
+  <div id="umap-tip" class="umap-tip" hidden>
+    <div class="umap-tip-head">
+      <span id="umap-tip-name" class="umap-tip-name mono"></span>
+      <span id="umap-tip-score" class="umap-tip-score"></span>
+    </div>
+    <div id="umap-tip-sub" class="umap-tip-sub"></div>
+    <div id="umap-tip-struct" class="umap-tip-struct"></div>
+  </div>
 
   <!-- Slide-out detail drawer -->
   <div id="scrim" class="scrim" hidden></div>
@@ -113,12 +311,13 @@
           </svg>
           <div class="gauge-center">
             <span id="gauge-num" class="gauge-num">–</span>
-            <span class="gauge-lbl">percentile</span>
+            <span class="gauge-lbl" id="gauge-lbl">percentile</span>
           </div>
         </div>
         <div class="hero-facts">
           <div class="fact"><span class="fact-k">Rank</span><span class="fact-v" id="h-rank"></span></div>
           <div class="fact"><span class="fact-k">Std (folds)</span><span class="fact-v" id="h-std"></span></div>
+          <div class="fact"><span class="fact-k" id="h-viab-k">Viability</span><span class="fact-v" id="h-viab"></span></div>
           <div class="fact wide"><span class="fact-k">Formula</span><span class="fact-v mono" id="h-formula"></span></div>
         </div>
       </div>
@@ -161,6 +360,25 @@
       </section>
 
       <section class="sect">
+        <h3>Per-fold percentile <span class="sect-note">delivery</span></h3>
+        <div id="d-folds" class="folds"></div>
+      </section>
+
+      <section class="sect tox-sect">
+        <h3>Toxicity <span class="sect-note">predicted cell viability · higher = safer</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Mean viability</span><span class="v" id="t-viab"></span></div>
+          <div class="cell"><span class="k">Std (folds)</span><span class="v" id="t-viab-std"></span></div>
+          <div class="cell"><span class="k">Mean percentile</span><span class="v" id="t-pct"></span></div>
+          <div class="cell"><span class="k">Std percentile</span><span class="v" id="t-pct-std"></span></div>
+        </div>
+        <div class="fold-group-lbl">Per-fold viability</div>
+        <div id="t-folds-viab" class="folds"></div>
+        <div class="fold-group-lbl">Per-fold percentile</div>
+        <div id="t-folds-pct" class="folds"></div>
+      </section>
+
+      <section class="sect">
         <h3>Screening condition <span class="sect-note">held constant</span></h3>
         <div class="kv">
           <div class="cell"><span class="k">Helper lipid</span><span class="v" id="c-helper"></span></div>
@@ -171,22 +389,114 @@
           <div class="cell"><span class="k">Dose</span><span class="v" id="c-dose"></span></div>
         </div>
       </section>
+     </div><!-- /cand-body -->
+
+     <div id="cond-body" hidden>
+      <!-- Hero: top-member percentile (drives the all-lipid rank) + group stats -->
+      <div class="hero-card">
+        <div class="gauge">
+          <svg viewBox="0 0 120 120" width="120" height="120">
+            <circle class="gauge-track" cx="60" cy="60" r="52" />
+            <circle id="cd-gauge-arc" class="gauge-arc" cx="60" cy="60" r="52" transform="rotate(-90 60 60)" />
+          </svg>
+          <div class="gauge-center">
+            <span id="cd-gauge-num" class="gauge-num">–</span>
+            <span class="gauge-lbl" id="cd-gauge-lbl">top pct</span>
+          </div>
+        </div>
+        <div class="hero-facts">
+          <div class="fact"><span class="fact-k">Rank · all lipids</span><span class="fact-v" id="cd-rank"></span></div>
+          <div class="fact"><span class="fact-k">Variants</span><span class="fact-v" id="cd-nvar"></span></div>
+          <div class="fact"><span class="fact-k">Avg score</span><span class="fact-v" id="cd-avg"></span></div>
+          <div class="fact"><span class="fact-k">Std · group</span><span class="fact-v" id="cd-std"></span></div>
+          <div class="fact"><span class="fact-k">Max − Std</span><span class="fact-v" id="cd-mms"></span></div>
+          <div class="fact"><span class="fact-k" id="cd-viab-k">Viability</span><span class="fact-v" id="cd-viab"></span></div>
+          <div class="fact wide"><span class="fact-k">Top member</span><span class="fact-v mono" id="cd-top"></span></div>
+        </div>
+      </div>
 
       <section class="sect">
-        <h3>Per-fold percentile</h3>
-        <div id="d-folds" class="folds"></div>
+        <h3>Structure <span class="sect-note">top-scoring member</span></h3>
+        <div class="struct-tile">
+          <div id="cd-struct-svg" class="struct-svg"></div>
+          <div id="cd-struct-loading" class="struct-loading">Rendering structure…</div>
+        </div>
+        <div class="smiles-box">
+          <code id="cd-smiles"></code>
+          <button id="cd-copy-smiles" class="copy-btn">Copy</button>
+        </div>
       </section>
-     </div><!-- /cand-body -->
+
+      <!-- Single sub-drawer holding every specific lipid collapsed into the group -->
+      <section class="sect">
+        <h3>Variants <span class="sect-note">specific lipids collapsed into this group</span></h3>
+        <details class="variants-drop" id="cd-variants-wrap">
+          <summary class="variants-summary">
+            <span class="acc-caret" aria-hidden="true">▸</span>
+            <span id="cd-var-note"></span>
+          </summary>
+          <div id="cd-variants" class="variants-list"></div>
+        </details>
+      </section>
+
+      <section class="sect">
+        <h3>Composition <span class="sect-note">canonical (condensed) labels · shared by all variants</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Starter</span><span class="v mono" id="cd-starter"></span></div>
+          <div class="cell"><span class="k">Head</span><span class="v mono" id="cd-head"></span></div>
+          <div class="cell"><span class="k">Linker</span><span class="v mono" id="cd-linker"></span></div>
+          <div class="cell"><span class="k">Tail</span><span class="v mono" id="cd-tail"></span></div>
+        </div>
+      </section>
+
+      <section class="sect">
+        <h3>Structural features <span class="sect-note">constant across group</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Tails</span><span class="v" id="cd-s-tails"></span></div>
+          <div class="cell"><span class="k">Carbons / tail</span><span class="v" id="cd-s-carbons"></span></div>
+          <div class="cell"><span class="k">C=C bonds</span><span class="v" id="cd-s-cc"></span></div>
+          <div class="cell"><span class="k">Protonatable N</span><span class="v" id="cd-s-pn"></span></div>
+          <div class="cell"><span class="k">Mol. weight</span><span class="v" id="cd-s-molwt"></span><span class="k sub">g/mol</span></div>
+        </div>
+      </section>
+
+      <section class="sect tox-sect">
+        <h3>Toxicity <span class="sect-note">top member · predicted cell viability · higher = safer</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Mean viability</span><span class="v" id="cdt-viab"></span></div>
+          <div class="cell"><span class="k">Std (folds)</span><span class="v" id="cdt-viab-std"></span></div>
+          <div class="cell"><span class="k">Mean percentile</span><span class="v" id="cdt-pct"></span></div>
+          <div class="cell"><span class="k">Std percentile</span><span class="v" id="cdt-pct-std"></span></div>
+        </div>
+        <div class="fold-group-lbl">Per-fold viability</div>
+        <div id="cdt-folds-viab" class="folds"></div>
+        <div class="fold-group-lbl">Per-fold percentile</div>
+        <div id="cdt-folds-pct" class="folds"></div>
+      </section>
+
+      <section class="sect">
+        <h3>Screening condition <span class="sect-note">held constant</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Helper lipid</span><span class="v" id="cd-c-helper"></span></div>
+          <div class="cell"><span class="k">Cell line</span><span class="v" id="cd-c-cell"></span></div>
+          <div class="cell"><span class="k">Molar ratio</span><span class="v mono" id="cd-c-ratio"></span><span class="k sub" id="cd-c-ratio-lbl"></span></div>
+          <div class="cell"><span class="k">Cargo</span><span class="v" id="cd-c-cargo"></span></div>
+          <div class="cell"><span class="k">Lipid : nucleic acid</span><span class="v mono" id="cd-c-ratio2"></span></div>
+          <div class="cell"><span class="k">Dose</span><span class="v" id="cd-c-dose"></span></div>
+        </div>
+      </section>
+     </div><!-- /cond-body -->
 
      <div id="comp-body" hidden>
       <div class="hero-card">
         <div class="hero-facts comp-facts">
           <div class="fact wide"><span class="fact-k">Full name</span><span class="fact-v" id="cf-name"></span></div>
-          <div class="fact"><span class="fact-k">Avg score</span><span class="fact-v" id="cf-avgscore"></span></div>
-          <div class="fact"><span class="fact-k">Std score</span><span class="fact-v" id="cf-stdscore"></span></div>
+          <div class="fact"><span class="fact-k" id="cf-avgscore-k">Avg score</span><span class="fact-v" id="cf-avgscore"></span></div>
+          <div class="fact"><span class="fact-k" id="cf-stdscore-k">Std score</span><span class="fact-v" id="cf-stdscore"></span></div>
           <div class="fact"><span class="fact-k">Avg rank</span><span class="fact-v" id="cf-avgrank"></span></div>
           <div class="fact"><span class="fact-k">Std rank</span><span class="fact-v" id="cf-stdrank"></span></div>
           <div class="fact"><span class="fact-k">% in top 10%</span><span class="fact-v" id="cf-top10"></span></div>
+          <div class="fact"><span class="fact-k" id="cf-viab-k">Viability</span><span class="fact-v" id="cf-viab"></span></div>
           <div class="fact"><span class="fact-k">Candidates</span><span class="fact-v" id="cf-n"></span></div>
         </div>
       </div>
@@ -205,6 +515,20 @@
           <code id="cf-smiles"></code>
           <button id="comp-copy-smiles" class="copy-btn">Copy</button>
         </div>
+      </section>
+
+      <section class="sect tox-sect">
+        <h3>Toxicity <span class="sect-note">mean over this fragment's candidates · higher = safer</span></h3>
+        <div class="kv">
+          <div class="cell"><span class="k">Mean viability</span><span class="v" id="ct-viab"></span></div>
+          <div class="cell"><span class="k">Std viability</span><span class="v" id="ct-viab-std"></span></div>
+          <div class="cell"><span class="k">Mean percentile</span><span class="v" id="ct-pct"></span></div>
+          <div class="cell"><span class="k">Std percentile</span><span class="v" id="ct-pct-std"></span></div>
+        </div>
+        <div class="fold-group-lbl">Per-fold viability</div>
+        <div id="ct-folds-viab" class="folds"></div>
+        <div class="fold-group-lbl">Per-fold percentile</div>
+        <div id="ct-folds-pct" class="folds"></div>
       </section>
      </div><!-- /comp-body -->
     </div>

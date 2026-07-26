@@ -254,17 +254,18 @@ def main():
     cv_ids = [cv for cv, _ in all_folds]
 
     if two_stage:
-        # Champion tox: per fold combine reg(-viability) + clf into a rank-averaged tox-score (higher
-        # = more toxic) over the whole library, then ensemble. Keep reg viability for the legacy flag.
-        tox_mat = np.column_stack([two_stage_score(scores[cv], scores_clf[cv]) for cv in cv_ids])
+        # Tox: report predicted VIABILITY only (regression arm; 0-1, already comparable across folds,
+        # so no rank-normalization is needed). Per-fold cv_{cv} is that fold's EXACT predicted
+        # viability; the ensemble summary is the mean/std of viability across folds. The classifier
+        # arm and the rank-based two-stage score are intentionally not used in the screen output.
         per_uniq = pd.DataFrame({"_canon": uniq,
-                                 "score_mean": tox_mat.mean(axis=1),   # tox-score, higher = MORE toxic
-                                 "score_std": tox_mat.std(axis=1),
-                                 "viability_mean": raw_mat.mean(axis=1),  # reg arm, for likely_toxic flag
+                                 "viability_mean": raw_mat.mean(axis=1),
                                  "viability_std": raw_mat.std(axis=1)})
         for j, cv in enumerate(cv_ids):
-            per_uniq[f"cv_{cv}"] = tox_mat[:, j]
-        cv_cols = [f"cv_{cv}" for cv in cv_ids] + ["viability_mean", "viability_std"]
+            per_uniq[f"cv_{cv}"] = raw_mat[:, j]        # exact predicted viability per fold
+        summary_cols = ["viability_mean", "viability_std"]
+        cv_cols = [f"cv_{cv}" for cv in cv_ids]
+        sort_col, sort_asc = "viability_mean", True     # most toxic (lowest viability) first
     elif mode == "del":
         # Gauge-free ranker: percentile each fold over the scored library BEFORE ensembling, so the
         # ensemble mean/std are on a common, interpretable [0,100] scale (fixes sign + cross-fold std).
@@ -277,18 +278,22 @@ def main():
             per_uniq[f"cv_{cv}"] = pct_mat[:, j]        # percentile per fold
         for j, cv in enumerate(cv_ids):
             per_uniq[f"raw_cv_{cv}"] = raw_mat[:, j]    # raw gauge-free score (audit)
+        summary_cols = ["score_mean", "score_std"]
         cv_cols = [f"cv_{cv}" for cv in cv_ids] + [f"raw_cv_{cv}" for cv in cv_ids]
+        sort_col, sort_asc = "score_mean", False
     else:
         per_uniq = pd.DataFrame({"_canon": uniq,
                                  "score_mean": raw_mat.mean(axis=1),
                                  "score_std": raw_mat.std(axis=1)})
         for j, cv in enumerate(cv_ids):
             per_uniq[f"cv_{cv}"] = raw_mat[:, j]
+        summary_cols = ["score_mean", "score_std"]
         cv_cols = [f"cv_{cv}" for cv in cv_ids]
+        sort_col, sort_asc = "score_mean", False
 
     out_df = lib.merge(per_uniq, on="_canon", how="inner")  # inner: honors --limit
-    out_df = out_df[["lipid_id", "smiles", "score_mean", "score_std"] + cv_cols]
-    out_df = out_df.sort_values("score_mean", ascending=False).reset_index(drop=True)
+    out_df = out_df[["lipid_id", "smiles"] + summary_cols + cv_cols]
+    out_df = out_df.sort_values(sort_col, ascending=sort_asc).reset_index(drop=True)
 
     out_path = args.out or os.path.join(RESULTS_DIR, f"{mode}_screen_scores.csv")
     os.makedirs(os.path.dirname(out_path), exist_ok=True)
@@ -296,6 +301,9 @@ def main():
     print(f"\nWrote {len(out_df)} ranked candidates -> {out_path}")
     if mode == "del":
         print("(delivery score_mean/score_std/cv_* are PERCENTILES in [0,100]; raw_cv_* are raw scores)")
+    elif two_stage:
+        print("(tox viability_mean/viability_std/cv_* are predicted cell viability in [0,1]; "
+              "lower = more toxic; cv_* are the per-fold exact viabilities)")
     print(out_df.head(10).to_string(index=False))
 
 
